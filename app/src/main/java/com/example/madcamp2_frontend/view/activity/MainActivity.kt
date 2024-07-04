@@ -16,12 +16,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        val account = GoogleSignIn.getLastSignedInAccount(this)
-//        if (account == null) {
-//            val signInIntent = Intent(this, SignInActivity::class.java)
-//            startActivity(signInIntent)
-//            finish()
-//        } else {
+        val account = GoogleSignIn.getLastSignedInAccount(this)
+        if (account == null) {
+            val signInIntent = Intent(this, SignInActivity::class.java)
+            startActivity(signInIntent)
+            finish()
+        } else {
             binding.startDrawingButton.setOnClickListener {
                 startActivity(Intent(this, BeforeStartActivity::class.java))
             }
@@ -29,6 +29,6 @@ class MainActivity : AppCompatActivity() {
             binding.rankingButton.setOnClickListener {
                 startActivity(Intent(this, RankingActivity::class.java))
             }
-//        }
+        }
     }
 }

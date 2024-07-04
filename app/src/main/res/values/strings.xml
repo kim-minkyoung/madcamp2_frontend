@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">madcamp2_frontend</string>
     <string name="title_activity_ranking">RankingActivity</string>
+    <string name="default_web_client_id">141378908291-a5h4qmteao504jvdnc6ehkrjvbt0v1tn.apps.googleusercontent.com</string>
 </resources>
