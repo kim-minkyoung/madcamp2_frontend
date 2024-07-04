@@ -1,0 +1,37 @@
+<!-- activity_before_start.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="다음을 그리세요"
+        android:textSize="16sp"
+        android:layout_centerInParent="true"/>
+
+    <TextView
+        android:id="@+id/randomWordTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_centerInParent="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="당신에게 주어진 시간은 단 20초!"
+        android:textSize="12sp"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="시작하기"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>

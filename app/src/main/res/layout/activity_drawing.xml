@@ -1,0 +1,33 @@
+<!-- activity_drawing.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/wordTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:layout_marginTop="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
+
+    <ImageView
+        android:id="@+id/drawingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/wordTextView"
+        android:layout_above="@+id/drawingEndButton"
+        android:background="@android:color/white"
+        android:scaleType="fitXY"/>
+
+    <Button
+        android:id="@+id/drawingEndButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="다 그렸어요"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"/>
+
+</RelativeLayout>
