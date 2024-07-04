@@ -4,30 +4,29 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import com.example.madcamp2_frontend.databinding.ItemRankingBinding
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.madcamp2_frontend.R
 
-class RankingAdapter(context: Context, private val rankingData: List<String>) :
-    ArrayAdapter<String>(context, 0, rankingData) {
+class RankingAdapter(
+    private val context: Context,
+    private val rankings: List<String>
+) : RecyclerView.Adapter<RankingAdapter.ViewHolder>() {
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val binding: ItemRankingBinding
-        val view: View
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val rankingTextView: TextView = view.findViewById(R.id.rankingItemTextView)
+    }
 
-        if (convertView == null) {
-            // View Binding을 사용하여 뷰 바인딩
-            binding = ItemRankingBinding.inflate(LayoutInflater.from(context), parent, false)
-            view = binding.root
-            view.tag = binding
-        } else {
-            binding = convertView.tag as ItemRankingBinding
-            view = convertView
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_ranking, parent, false)
+        return ViewHolder(view)
+    }
 
-        // 데이터 바인딩
-        val item = rankingData[position]
-        binding.rankingItemTextView.text = item
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.rankingTextView.text = rankings[position]
+    }
 
-        return view
+    override fun getItemCount(): Int {
+        return rankings.size
     }
 }

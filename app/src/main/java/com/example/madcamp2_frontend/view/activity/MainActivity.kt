@@ -1,10 +1,11 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.example.madcamp2_frontend.databinding.ActivityMainBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,12 +14,21 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
-        // DrawingActivity 시작하는 버튼 클릭 리스너
-        binding.startDrawingButton.setOnClickListener {
-            startActivity(Intent(this, BeforeStartActivity::class.java))
-        }
+//        val account = GoogleSignIn.getLastSignedInAccount(this)
+//        if (account == null) {
+//            val signInIntent = Intent(this, SignInActivity::class.java)
+//            startActivity(signInIntent)
+//            finish()
+//        } else {
+            binding.startDrawingButton.setOnClickListener {
+                startActivity(Intent(this, BeforeStartActivity::class.java))
+            }
+
+            binding.rankingButton.setOnClickListener {
+                startActivity(Intent(this, RankingActivity::class.java))
+            }
+//        }
     }
 }
