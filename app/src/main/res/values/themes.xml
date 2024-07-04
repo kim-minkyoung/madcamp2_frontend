@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Madcamp2_frontend" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+         <item name="colorPrimary">@color/pink</item>
     </style>
 
     <style name="Theme.Madcamp2_frontend" parent="Base.Theme.Madcamp2_frontend" />
