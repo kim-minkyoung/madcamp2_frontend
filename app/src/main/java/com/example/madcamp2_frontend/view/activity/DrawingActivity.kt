@@ -1,22 +1,12 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.example.madcamp2_frontend.databinding.ActivityDrawingBinding
-import okhttp3.*
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 import com.example.madcamp2_frontend.model.repository.DrawingRepository
 
 class DrawingActivity : AppCompatActivity() {
@@ -24,65 +14,87 @@ class DrawingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDrawingBinding
     private val repository = DrawingRepository
 
-    private var currentWord: String = "" // 현재 단어를 저장할 변수
+    private var currentWord: String = ""
     private var drawingBitmap: Bitmap? = null
+    private var tempBitmap: Bitmap? = null
     private var canvas: Canvas? = null
-    private var paint: Paint = Paint()
+    private var tempCanvas: Canvas? = null
+    private val paint: Paint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.STROKE
+        strokeWidth = 10f
+        isAntiAlias = true
+    }
+    private val path: Path = Path()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDrawingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 인텐트에서 랜덤 단어 받기
+        // Get random word from intent
         currentWord = intent.getStringExtra("random_word") ?: ""
 
-        // 단어 TextView에 설정
+        // Set the word to TextView
         binding.wordTextView.text = currentWord
 
-        // 초기 설정
+        // Initial setup
         setupCanvas()
 
-        // 그리기 완료 후 일치율 확인
+        // Check match percentage after drawing is done
         binding.drawingEndButton.setOnClickListener {
             checkMatchPercentage()
         }
     }
 
-    // Canvas 설정 메서드
     @SuppressLint("ClickableViewAccessibility")
     private fun setupCanvas() {
-        // Canvas 초기화
         drawingBitmap = Bitmap.createBitmap(800, 800, Bitmap.Config.ARGB_8888)
+        tempBitmap = Bitmap.createBitmap(800, 800, Bitmap.Config.ARGB_8888)
         binding.drawingView.setImageBitmap(drawingBitmap)
 
         canvas = Canvas(drawingBitmap!!)
+        tempCanvas = Canvas(tempBitmap!!)
         canvas?.drawColor(Color.WHITE)
 
-        binding.drawingView.setOnTouchListener { _, event ->
-            startDrawing(event)
+        binding.drawingView.setOnTouchListener { v, event ->
+            val scaleX = drawingBitmap!!.width.toFloat() / v.width
+            val scaleY = drawingBitmap!!.height.toFloat() / v.height
+            handleTouch(event, scaleX, scaleY)
             true
         }
     }
 
-    // 그림 그리기 이벤트 처리
-    private fun startDrawing(event: android.view.MotionEvent) {
-        val x = event.x
-        val y = event.y
+    private fun handleTouch(event: MotionEvent, scaleX: Float, scaleY: Float) {
+        val x = event.x * scaleX
+        val y = event.y * scaleY
 
         when (event.action) {
-            android.view.MotionEvent.ACTION_DOWN -> {
-                canvas?.drawCircle(x, y, 10f, paint)
+            MotionEvent.ACTION_DOWN -> {
+                path.moveTo(x, y)
             }
-            android.view.MotionEvent.ACTION_MOVE -> {
-                canvas?.drawCircle(x, y, 10f, paint)
+            MotionEvent.ACTION_MOVE -> {
+                path.lineTo(x, y)
+                tempCanvas?.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+                tempCanvas?.drawPath(path, paint)
+                binding.drawingView.setImageBitmap(mergeBitmaps(drawingBitmap!!, tempBitmap!!))
+            }
+            MotionEvent.ACTION_UP -> {
+                canvas?.drawPath(path, paint)
+                path.reset()
+                binding.drawingView.setImageBitmap(drawingBitmap)
             }
         }
-
-        binding.drawingView.invalidate()
     }
 
-    // 그리기 완료 후 일치율 확인
+    private fun mergeBitmaps(base: Bitmap, overlay: Bitmap): Bitmap {
+        val mergedBitmap = Bitmap.createBitmap(base.width, base.height, base.config)
+        val canvas = Canvas(mergedBitmap)
+        canvas.drawBitmap(base, 0f, 0f, null)
+        canvas.drawBitmap(overlay, 0f, 0f, null)
+        return mergedBitmap
+    }
+
     private fun checkMatchPercentage() {
         repository.callQuickDrawAPI(currentWord, drawingBitmap ?: return) { matchPercentage ->
             runOnUiThread {
@@ -91,10 +103,11 @@ class DrawingActivity : AppCompatActivity() {
         }
     }
 
-    // 터치 이벤트 처리
-    override fun onTouchEvent(event: android.view.MotionEvent?): Boolean {
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
-            startDrawing(event)
+            val scaleX = drawingBitmap!!.width.toFloat() / binding.drawingView.width
+            val scaleY = drawingBitmap!!.height.toFloat() / binding.drawingView.height
+            handleTouch(event, scaleX, scaleY)
         }
         return true
     }
