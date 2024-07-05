@@ -4,8 +4,46 @@
     android:layout_height="match_parent"
     tools:context=".view.activity.RankingActivity">
 
+    <LinearLayout
+        android:id="@+id/top3Container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:gravity = "center"
+        android:padding="16dp">
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top3Container"
+        android:layout_above="@+id/myRankContainer"
+        android:padding="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/myRankContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/myRankAvatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_launcher_foreground" /> <!-- Placeholder for user's avatar -->
+
+        <TextView
+            android:id="@+id/myRankTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Rank: "
+            android:textSize="18sp"
+            android:layout_marginStart="16dp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
 </RelativeLayout>

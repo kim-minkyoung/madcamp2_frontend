@@ -31,8 +31,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.activity.BeforeStartActivity" />
-        <activity android:name=".view.activity.DrawingActivity" />
         <activity android:name=".view.activity.SignInActivity" />
+        <activity android:name=".view.activity.DrawingActivity" />
+        <activity android:name=".view.activity.ResultActivity" />
 
         <meta-data
             android:name="com.google.android.gms.auth.api.credentials.CREDENTIAL_PICKER"
@@ -40,6 +41,15 @@
         <meta-data
             android:name="com.google.android.gms.auth.api.signin"
             android:resource="@xml/google_signin" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

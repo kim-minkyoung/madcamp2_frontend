@@ -43,7 +43,7 @@ class SignInActivity : AppCompatActivity() {
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestIdToken(getString(R.string.default_web_client_id))
+//            .requestIdToken(getString(R.string.default_web_client_id))
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -57,12 +57,28 @@ class SignInActivity : AppCompatActivity() {
 
         // Retrofit 초기화
         retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.0.174:3000") // 서버 URL 설정
+            .baseUrl("http://143.248.226.167:3000") // 서버 URL 설정
             .addConverterFactory(GsonConverterFactory.create()) // Gson 변환기 설정
             .build()
 
         // Retrofit 서비스 인스턴스 생성
         service = retrofit.create(ApiService::class.java)
+
+        binding.btnGet.setOnClickListener {
+            getDataFromServer()
+        }
+
+        binding.btnPost.setOnClickListener {
+            postDataToServer()
+        }
+
+        binding.btnUpdate.setOnClickListener {
+            updateDataOnServer()
+        }
+
+        binding.btnDelete.setOnClickListener {
+            deleteDataOnServer()
+        }
     }
 
     private val signInLauncher = registerForActivityResult(
