@@ -20,16 +20,15 @@ class RankingAdapter(
     }
 
     override fun onBindViewHolder(holder: RankingViewHolder, position: Int) {
-        val actualPosition = position + 3 // Adjust position to skip top 3
-        val data = rankings[actualPosition].split(": ")
-        holder.binding.rankingPositionTextView.text = "${actualPosition + 1}"
+        val data = rankings[position].split(": ")
+        holder.binding.rankingPositionTextView.text = "${position + 1}"
         holder.binding.rankingNicknameTextView.text = data[0]
         holder.binding.rankingScoreTextView.text = data[1]
         // Set avatar image if available
-        holder.binding.rankingAvatarImageView.setImageResource(R.drawable.ic_launcher_foreground) // Placeholder, replace with actual image loading logic
+        holder.binding.rankingAvatarImageView.setImageResource(R.drawable.default_profile)
     }
 
     override fun getItemCount(): Int {
-        return rankings.size - 3 // Exclude top 3 from the main list
+        return rankings.size // Exclude top 3 from the main list
     }
 }

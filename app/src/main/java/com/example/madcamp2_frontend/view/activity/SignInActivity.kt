@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.madcamp2_frontend.model.`interface`.ApiService  // ApiService 임포트 추가
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivitySignInBinding
+import com.example.madcamp2_frontend.model.network.ApiService
+import com.example.madcamp2_frontend.model.network.UserInfo
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -23,7 +25,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory  // 이 부분 추가
+import retrofit2.converter.gson.GsonConverterFactory
 
 class SignInActivity : AppCompatActivity() {
 
@@ -33,17 +35,21 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var service: ApiService
 
     private val TAG = "SignInActivity"
+    private val URL = "http://143.248.226.31:3000"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        Glide.with(this)
+            .load(R.raw.drawdle)
+            .into(binding.drawdleLogo)
+
         Log.d(TAG, "onCreate: Initializing Google Sign-In options")
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-//            .requestIdToken(getString(R.string.default_web_client_id))
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -55,30 +61,14 @@ class SignInActivity : AppCompatActivity() {
             signIn()
         }
 
-        // Retrofit 초기화
+        // Initialize Retrofit
         retrofit = Retrofit.Builder()
-            .baseUrl("http://143.248.226.167:3000") // 서버 URL 설정
-            .addConverterFactory(GsonConverterFactory.create()) // Gson 변환기 설정
+            .baseUrl(URL) // Server URL
+            .addConverterFactory(GsonConverterFactory.create()) // Gson Converter
             .build()
 
-        // Retrofit 서비스 인스턴스 생성
+        // Create Retrofit service instance
         service = retrofit.create(ApiService::class.java)
-
-        binding.btnGet.setOnClickListener {
-            getDataFromServer()
-        }
-
-        binding.btnPost.setOnClickListener {
-            postDataToServer()
-        }
-
-        binding.btnUpdate.setOnClickListener {
-            updateDataOnServer()
-        }
-
-        binding.btnDelete.setOnClickListener {
-            deleteDataOnServer()
-        }
     }
 
     private val signInLauncher = registerForActivityResult(
@@ -104,11 +94,41 @@ class SignInActivity : AppCompatActivity() {
         try {
             val account = completedTask.getResult(ApiException::class.java)
             Log.d(TAG, "handleSignInResult: success, account: ${account?.email}")
-            updateUI(account)
+            if (account != null) {
+                postUserEmail(account)
+            }
         } catch (e: ApiException) {
             Log.w(TAG, "handleSignInResult: failed code=" + e.statusCode)
             Toast.makeText(this, "Sign-In Failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
-            updateUI(null)
+        }
+    }
+
+    private fun postUserEmail(account: GoogleSignInAccount) {
+        val email = account.email ?: return
+        val nickname = account.displayName ?: ""
+        val profileImage = account.photoUrl?.toString() ?: ""
+
+        val userInfo = UserInfo(email, nickname, profileImage)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            service.postUserEmail(userInfo).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    if (response.isSuccessful) {
+                        Log.d(TAG, "postUserEmail: Email posted successfully")
+                        val user = response.body()?.string()
+                        Log.d(TAG, "User info: $user")
+                        runOnUiThread {
+                            updateUI(account)
+                        }
+                    } else {
+                        Log.e(TAG, "postUserEmail: Failed to post email, response code: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e(TAG, "postUserEmail: Failed to post email, error: ${t.message}")
+                }
+            })
         }
     }
 
@@ -123,71 +143,5 @@ class SignInActivity : AppCompatActivity() {
             Log.d(TAG, "updateUI: Sign-In failed, showing toast")
             Toast.makeText(this, "Sign-In Failed", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    // Retrofit을 통한 서버 통신 메서드들
-    private fun getDataFromServer() {
-        val call: Call<ResponseBody> = service.getFunc("data") // ApiService에서 정의한 메서드 호출
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful) {
-                    try {
-                        val result = response.body()?.string()
-                        Log.d(TAG, "getDataFromServer onResponse: result = $result")
-                        runOnUiThread { Toast.makeText(applicationContext, result, Toast.LENGTH_SHORT).show() }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                } else {
-                    Log.d(TAG, "getDataFromServer onResponse: error = ${response.code()}")
-                    runOnUiThread { Toast.makeText(applicationContext, "Error: ${response.code()}", Toast.LENGTH_SHORT).show() }
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Log.d(TAG, "getDataFromServer onFailure: error = ${t.message}")
-                runOnUiThread { Toast.makeText(applicationContext, "Response Fail", Toast.LENGTH_SHORT).show() }
-            }
-        })
-    }
-
-    // 다른 HTTP 메서드들도 동일한 방식으로 구현 가능
-    private fun postDataToServer() {
-        val call: Call<ResponseBody> = service.postFunc("data")
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                // 처리
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                // 처리
-            }
-        })
-    }
-
-    private fun updateDataOnServer() {
-        val call: Call<ResponseBody> = service.putFunc("board", "data")
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                // 처리
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                // 처리
-            }
-        })
-    }
-
-    private fun deleteDataOnServer() {
-        val call: Call<ResponseBody> = service.deleteFunc("board")
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                // 처리
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                // 처리
-            }
-        })
     }
 }

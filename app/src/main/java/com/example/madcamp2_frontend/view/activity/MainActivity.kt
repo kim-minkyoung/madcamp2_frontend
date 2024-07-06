@@ -3,6 +3,8 @@ package com.example.madcamp2_frontend.view.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityMainBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -22,6 +24,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(signInIntent)
             finish()
         } else {
+            Glide.with(this)
+                .load(R.raw.drawdle)
+                .into(binding.drawdleLogo)
+
+            binding.profileButton.setOnClickListener {
+                startActivity(Intent(this, ProfileConfigurationActivity::class.java))
+            }
+
             binding.startDrawingButton.setOnClickListener {
                 startActivity(Intent(this, BeforeStartActivity::class.java))
             }

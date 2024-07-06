@@ -4,23 +4,25 @@
     android:orientation="horizontal"
     android:padding="10dp"
     android:layout_margin="5dp"
-    android:background="@drawable/rounded_rectangle">
+    android:background="@drawable/rounded_rectangle_stroke">
 
     <TextView
         android:id="@+id/rankingPositionTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="20dp"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="1"
-        android:textSize="18sp"
+        android:textSize="24sp"
+        android:fontFamily="@font/bazzi"
         android:textColor="@android:color/black"
         android:layout_gravity="center_vertical"/>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/rankingAvatarImageView"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="10dp"
-        android:src="@drawable/ic_launcher_foreground" /> <!-- Placeholder for avatar -->
+        android:src="@drawable/default_profile" />
 
     <TextView
         android:id="@+id/rankingNicknameTextView"
@@ -28,7 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Nickname"
-        android:textSize="18sp"
+        android:textSize="22sp"
+        android:fontFamily="@font/bazzi"
         android:paddingStart="16dp"
         android:textColor="@android:color/black"
         android:layout_gravity="center_vertical"/>
@@ -38,7 +41,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Score"
-        android:textSize="18sp"
+        android:textSize="22sp"
+        android:fontFamily="@font/bazzi"
         android:paddingStart="16dp"
         android:textColor="@android:color/black"
         android:layout_gravity="center_vertical"/>

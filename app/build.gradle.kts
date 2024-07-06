@@ -54,11 +54,13 @@ android {
 
 dependencies {
     implementation(libs.retrofit)
-    implementation(libs.converter.gson)
     implementation(libs.gson)
+    implementation(libs.converter.gson)
+    implementation(libs.converter.scalars)
     implementation(libs.logging.interceptor)
     implementation(libs.okhttp)
     implementation(libs.glide)
+    implementation(libs.circleimageview)
     implementation(libs.play.services.auth)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -75,6 +77,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.tensorflow.lite)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
