@@ -25,7 +25,6 @@
         android:text="만나서 반가워요!"
         android:textStyle="bold"
         android:fontFamily="@font/bazzi"
-        android:textColor="@color/white"
         android:textSize="26sp" />
 
     <com.google.android.gms.common.SignInButton

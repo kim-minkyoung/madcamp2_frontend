@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-android")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -69,6 +71,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.generativeai)
+    implementation(libs.material)
+    implementation(libs.generativeai)
+    testImplementation(libs.junit)
+    implementation(libs.guava)
+    implementation(libs.reactive.streams)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     annotationProcessor(libs.compiler)

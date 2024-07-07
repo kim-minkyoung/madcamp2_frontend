@@ -2,4 +2,5 @@
     <string name="app_name">madcamp2_frontend</string>
     <string name="title_activity_ranking">RankingActivity</string>
     <string name="default_web_client_id">141378908291-5ul4choas04b5591cl8e1juf2o4rvuj2.apps.googleusercontent.com</string>
+    <string name="analyze_drawing_text">그림을 분석중이에요...</string>
 </resources>

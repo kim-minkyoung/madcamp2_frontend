@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="350dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="30dp"
     android:background="@drawable/rounded_rectangle">
+
+    <TextView
+        android:id="@+id/nicknameLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="22sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="닉네임을 입력해주세요." />
 
     <EditText
         android:id="@+id/nicknameEditText"
@@ -12,16 +23,17 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/bazzi"
         android:textSize="22sp"
-        android:textColor="@color/white"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:hint="닉네임을 입력해주세요." />
+        android:hint="No Name" />
 
     <Button
         android:id="@+id/submitNicknameButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit" />
+        android:text="닉네임 결정"
+        android:textSize="20sp"
+        android:fontFamily="@font/bazzi"/>
 
 </LinearLayout>
 

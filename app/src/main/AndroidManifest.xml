@@ -46,6 +46,7 @@
         <activity android:name=".view.activity.DrawingActivity" />
         <activity android:name=".view.activity.ResultActivity" />
         <activity android:name=".view.activity.ProfileConfigurationActivity" />
+        <activity android:name=".view.activity.LoadingActivity" />
 
         <meta-data
             android:name="com.google.android.gms.auth.api.credentials.CREDENTIAL_PICKER"
