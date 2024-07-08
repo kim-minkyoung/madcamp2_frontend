@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityDrawingBinding
-import com.example.madcamp2_frontend.model.repository.DrawingRepository
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.roundToInt
@@ -22,7 +22,6 @@ import kotlin.math.roundToInt
 class DrawingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDrawingBinding
-    private val repository = DrawingRepository
     private var countdownTimer: CountDownTimer? = null
 
     private var currentWord: String = ""
@@ -37,6 +36,9 @@ class DrawingActivity : AppCompatActivity() {
         isAntiAlias = true
     }
     private val path: Path = Path()
+    private var remainingMilliSeconds: Long = 5000
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +60,10 @@ class DrawingActivity : AppCompatActivity() {
         // Check match percentage after drawing is done
         binding.drawingEndButton.setOnClickListener {
             countdownTimer?.cancel()
-            checkMatchPercentage()
+            binding.drawingView.isEnabled = false
+            binding.drawingEndButton.isEnabled = false
+
+            navigateToLoadingActivity()
         }
 
         // Clear the canvas when the re-draw button is clicked
@@ -115,40 +120,31 @@ class DrawingActivity : AppCompatActivity() {
         return mergedBitmap
     }
 
-    private fun checkMatchPercentage() {
-        repository.callQuickDrawAPI(currentWord, drawingBitmap ?: return) { predictions, score ->
-            runOnUiThread {
-                Log.d("DrawingActivity", "onDrawingComplete called")
-                onDrawingComplete(predictions, score)
-            }
-        }
-    }
-
-    private fun onDrawingComplete(predictions: List<Pair<String, Float>>, score: Int) {
-        Log.d("DrawingActivity", "Predictions: $predictions, Score: $score")
-
-        val bestPrediction = predictions[0]
-        val secondPrediction = predictions[1]
-        val thirdPrediction = predictions[2]
-        val fourthPrediction = predictions[3]
-
+    private fun navigateToLoadingActivity() {
         // Save bitmap to file
         val bitmapFileUri = saveBitmapToFile(drawingBitmap)
 
-        val intent = Intent(this, ResultActivity::class.java).apply {
-            putExtra("bitmapFileUri", bitmapFileUri)
-            putExtra("bestPrediction", bestPrediction.first)
-            putExtra("bestPredictionPercentage", bestPrediction.second)
-            putExtra("secondPrediction", secondPrediction.first)
-            putExtra("secondPredictionPercentage", secondPrediction.second)
-            putExtra("thirdPrediction", thirdPrediction.first)
-            putExtra("thirdPredictionPercentage", thirdPrediction.second)
-            putExtra("fourthPrediction", fourthPrediction.first)
-            putExtra("fourthPredictionPercentage", fourthPrediction.second)
-            putExtra("score", score)
+        val intent = Intent(this, LoadingActivity::class.java).apply {
+            putExtra("bitmapFileUri", bitmapFileUri.toString())
+
+            putExtra("remainingMilliSeconds", remainingMilliSeconds)
         }
         startActivity(intent)
         finish()
+    }
+
+    private fun parsePredictions(resultText: String): List<Pair<String, Float>> {
+        val predictions = mutableListOf<Pair<String, Float>>()
+        val lines = resultText.split("\n")
+        for (line in lines) {
+            val parts = line.split(":")
+            if (parts.size == 2) {
+                val label = parts[0].trim()
+                val confidence = parts[1].trim().toFloatOrNull() ?: 0f
+                predictions.add(Pair(label, confidence))
+            }
+        }
+        return predictions
     }
 
     private fun saveBitmapToFile(bitmap: Bitmap?): Uri {
@@ -160,14 +156,19 @@ class DrawingActivity : AppCompatActivity() {
     }
 
     private fun startCountdownTimer() {
-        countdownTimer = object : CountDownTimer(20000, 100) {
+        countdownTimer = object : CountDownTimer(5000, 100) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = (millisUntilFinished / 1000).toInt() + 1
+                remainingMilliSeconds = millisUntilFinished
                 binding.timerTextView.text = secondsLeft.toString()
                 if (secondsLeft <= 5) {
                     val fraction = (5000 - millisUntilFinished) / 5000.0f
                     binding.timerTextView.textSize = 24.0f * (1.0f + fraction)
-                    val backgroundColor = interpolateColor(ContextCompat.getColor(this@DrawingActivity, R.color.veryLightGray), Color.RED, fraction)
+                    val backgroundColor = interpolateColor(
+                        ContextCompat.getColor(this@DrawingActivity, R.color.veryLightGray),
+                        Color.RED,
+                        fraction
+                    )
                     binding.root.setBackgroundColor(backgroundColor)
                 } else {
                     binding.root.setBackgroundColor(ContextCompat.getColor(this@DrawingActivity, R.color.veryLightGray))
@@ -179,7 +180,7 @@ class DrawingActivity : AppCompatActivity() {
                 binding.drawingView.isEnabled = false
                 binding.drawingEndButton.isEnabled = false
                 Toast.makeText(applicationContext, "시간이 초과되었습니다!", Toast.LENGTH_SHORT).show()
-                checkMatchPercentage()
+                navigateToLoadingActivity()
             }
         }.start()
     }
@@ -224,5 +225,6 @@ class DrawingActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         countdownTimer?.cancel()
+        coroutineScope.cancel()
     }
 }

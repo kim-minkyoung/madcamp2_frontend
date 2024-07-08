@@ -33,42 +33,79 @@
                 android:id="@+id/nicknameLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="John Doe"
-                android:fontFamily="@font/bazzi"
-                android:textSize="30sp"
-                android:textColor="@color/white"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="16dp"
+                android:fontFamily="@font/bazzi"
+                android:text="John Doe"
+                android:textSize="30sp"
                 app:layout_constraintTop_toBottomOf="@id/profileImageView"
-                app:layout_constraintBottom_toBottomOf="@id/profileLayout"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <ImageView
+                android:id="@+id/modifyNicknameView"
+                android:layout_width="24dp"
+                android:layout_height="23dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="24dp"
+                android:src="@drawable/ic_pencil"
+                app:layout_constraintStart_toEndOf="@id/nicknameLabel"
+                app:layout_constraintTop_toBottomOf="@id/profileImageView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
     <!-- Second Section with a Different Background Color -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
 
         <TextView
+            android:id="@+id/accountInfoView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Account Info"
             android:fontFamily="@font/bazzi"
             android:padding="10dp"
+            android:text="로그인된 계정 정보"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Placeholder for dynamically added views -->
         <LinearLayout
             android:id="@+id/infoContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </LinearLayout>
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/accountInfoView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/signOutButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="로그 아웃"
+            android:textSize="22sp"
+            android:fontFamily="@font/bazzi"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/deleteAccountButton" />
+
+        <Button
+            android:id="@+id/deleteAccountButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="계정 삭제"
+            android:textSize="22sp"
+            android:fontFamily="@font/bazzi"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/signOutButton"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
