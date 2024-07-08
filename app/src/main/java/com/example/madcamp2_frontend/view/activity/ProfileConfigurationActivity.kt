@@ -72,11 +72,15 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
         Log.d("ProfileConfigurationActivity", "Page Created")
 
-        val userInfo = userViewModel.userInfo.value
+        val userInfo = intent.getParcelableExtra<UserInfo>("userInfo")
+        Log.d("ProfileConfigurationActivity", "user Info is $userInfo")
         userInfo?.let {
             binding.nicknameLabel.text = it.nickname
-            if (it.profileImage != null) {
+            if (it.profileImage != "") {
                 Glide.with(this).load(it.profileImage).into(binding.profileImageView)
+            }
+            else {
+                Glide.with(this).load(R.drawable.default_profile).into(binding.profileImageView)
             }
             addProfileInfo("Email", it.email)
         }

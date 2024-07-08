@@ -5,13 +5,16 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
+import com.example.madcamp2_frontend.viewmodel.UserViewModel
 
 class ResultActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResultBinding
+    private val userViewModel: UserViewModel by viewModels()
 
     @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {

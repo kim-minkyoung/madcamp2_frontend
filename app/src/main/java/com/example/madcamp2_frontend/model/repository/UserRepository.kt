@@ -20,6 +20,7 @@ class UserRepository(private val apiService: ApiService) {
             override fun onResponse(call: Call<UserInfo>, response: Response<UserInfo>) {
                 if (response.isSuccessful) {
                     _userInfo.postValue(response.body())
+                    Log.d("UserRepository", "User info posted: ${response.body()}")
                 } else {
                     Log.e("UserRepository", "Failed to fetch user info: ${response.errorBody()?.string()}")
                 }

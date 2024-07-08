@@ -59,11 +59,11 @@ interface ApiService {
 
 @Parcelize
 data class UserInfo(
-    @SerializedName("userid") val userid: String,
+    @SerializedName("_id") val userid: String,
     @SerializedName("email") val email: String,
     @SerializedName("nickname") val nickname: String? = null,
     @SerializedName("profileImage") val profileImage: String? = null,
-    @SerializedName("score") val score: Int? = null
+    @SerializedName("score") val score: Int? = 0
 ) : Parcelable
 
 data class UserEmailRequest(

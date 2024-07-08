@@ -1,14 +1,11 @@
 // SignInActivity
 package com.example.madcamp2_frontend.view.activity
 
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Window
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -17,8 +14,6 @@ import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivitySignInBinding
-import com.example.madcamp2_frontend.databinding.NicknameDialogBinding
-import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -34,7 +29,7 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
 
     private val TAG = "SignInActivity"
-    private val USER_ID_KEY = "userId"
+    private val USER_ID_KEY = "userid"
 
     private val userViewModel: UserViewModel by viewModels()
 
@@ -98,10 +93,10 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveUserId(userId: String?) {
-        if (userId != null) {
-            sharedPreferences.edit().putString(USER_ID_KEY, userId).apply()
-            Log.d(TAG, "Saved userId: $userId")
+    private fun saveUserId(userid: String?) {
+        if (userid != null) {
+            sharedPreferences.edit().putString(USER_ID_KEY, userid).apply()
+            Log.d(TAG, "Saved userId: $userid")
         }
     }
 
@@ -110,7 +105,6 @@ class SignInActivity : AppCompatActivity() {
             if (userInfo != null) {
                 saveUserId(userInfo.userid)
             }
-            Log.d(TAG, "User exists, updating UI")
             updateUI(account)
         })
     }

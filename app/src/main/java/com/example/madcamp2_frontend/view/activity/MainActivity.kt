@@ -10,9 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityMainBinding
-import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,17 +25,18 @@ class MainActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
 
-        val userId = sharedPreferences.getString("userId", null)
-        if (userId == null) {
+        val userid = sharedPreferences.getString("userid", null)
+        Log.d("MainActivity", "User id: $userid")
+        if (userid == null) {
             val signInIntent = Intent(this, SignInActivity::class.java)
             startActivity(signInIntent)
             finish()
         } else {
             Log.d("MainActivity", "Last Signed In Account exists")
-            userViewModel.getUserInfo(userId)
+            userViewModel.getUserInfo(userid)
             userViewModel.userInfo.observe(this) { userInfo ->
                 if (userInfo != null) {
-                    Log.d("MainActivity", "User info exists")
+                    Log.d("MainActivity", "User info exists: $userInfo")
                     binding.profileButton.setOnClickListener {
                         val intent = Intent(this, ProfileConfigurationActivity::class.java)
                         intent.putExtra("userInfo", userInfo)
