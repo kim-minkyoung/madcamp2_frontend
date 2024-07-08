@@ -1,9 +1,7 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -27,22 +25,16 @@ import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityProfileConfigurationBinding
 import com.example.madcamp2_frontend.databinding.ItemProfileInfoBinding
 import com.example.madcamp2_frontend.databinding.NicknameDialogBinding
-import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.gson.Gson
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 class ProfileConfigurationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileConfigurationBinding
     private val REQUEST_CODE_STORAGE_PERMISSION = 1
-    private val URL = "http://143.248.226.86:3000/"
 
     private val userViewModel: UserViewModel by viewModels()
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -76,19 +68,13 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
         Log.d("ProfileConfigurationActivity", "Page Created")
 
-        val userInfo: UserInfo? = intent.getParcelableExtra("userInfo")
+        val userInfo = userViewModel.userInfo.value
         userInfo?.let {
-            userViewModel.setUserInfo(it)
-        }
-
-        userViewModel.userInfo.observe(this) { userInfo ->
-            Log.d("ProfileConfigurationActivity", "User Info updated to: ${userInfo.nickname}, ${userInfo.email}")
-            binding.nicknameLabel.text = userInfo.nickname
-            if(userInfo.profileImage != null) {
-                Glide.with(this).load(userInfo.profileImage).into(binding.profileImageView)
+            binding.nicknameLabel.text = it.nickname
+            if (it.profileImage != null) {
+                Glide.with(this).load(it.profileImage).into(binding.profileImageView)
             }
-            addProfileInfo("Email", userInfo.email)
-            // Update other profile info items as needed
+            addProfileInfo("Email", it.email)
         }
 
         binding.profileImageView.setOnClickListener {
@@ -122,6 +108,13 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         }
     }
 
+    private fun addProfileInfo(title: String, detail: String) {
+        val itemBinding = ItemProfileInfoBinding.inflate(layoutInflater)
+        itemBinding.infoTextView.text = title
+        itemBinding.infoDetailsTextView.text = detail
+        binding.infoContainer.addView(itemBinding.root)
+    }
+
     private fun showProfileImageOptions(view: View) {
         val popup = PopupMenu(this, view)
         popup.menuInflater.inflate(R.menu.profile_image_options_menu, popup.menu)
@@ -153,7 +146,7 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     }
 
     private val profileImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+        if (result.resultCode == RESULT_OK && result.data != null) {
             val selectedImageUri: Uri? = result.data!!.data
             if (selectedImageUri != null) {
                 val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImageUri)
@@ -163,61 +156,14 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_STORAGE_PERMISSION) {
-            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                pickImageFromGallery()
-            } else {
-                Toast.makeText(this, "Permission denied to read external storage", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun addProfileInfo(title: String, detail: String) {
-        val itemBinding = ItemProfileInfoBinding.inflate(layoutInflater)
-        itemBinding.infoTextView.text = title
-        itemBinding.infoDetailsTextView.text = detail
-        binding.infoContainer.addView(itemBinding.root)
-    }
-
     private fun uploadProfileImage(bitmap: Bitmap) {
         val userId = userViewModel.userInfo.value?.userid ?: return
-        val url = "$URL/users/$userId"
         val base64Image = encodeImage(bitmap)
-        val json = """
-            {
-                "profileImage": "$base64Image"
-            }
-        """.trimIndent()
-
-        val requestBody = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), json)
-        val request = Request.Builder()
-            .url(url)
-            .put(requestBody)
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@ProfileConfigurationActivity, "Failed to upload image", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@ProfileConfigurationActivity, "Profile image updated", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@ProfileConfigurationActivity, "Failed to update image", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
+        val updatedUserInfo = userViewModel.userInfo.value?.copy(profileImage = base64Image) ?: return
+        userViewModel.updateUserInfo(updatedUserInfo)
     }
 
-    private fun encodeImage(bm: Bitmap): String? {
+    private fun encodeImage(bm: Bitmap): String {
         val baos = ByteArrayOutputStream()
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val b = baos.toByteArray()
@@ -226,69 +172,14 @@ class ProfileConfigurationActivity : AppCompatActivity() {
 
     private fun deleteProfileImage() {
         val userId = userViewModel.userInfo.value?.userid ?: return
-        val url = "$URL/users/$userId/deleteProfileImage"
-
-        val request = Request.Builder()
-            .url(url)
-            .delete()
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@ProfileConfigurationActivity, "Failed to delete image", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        binding.profileImageView.setImageResource(R.drawable.default_profile)
-                        Toast.makeText(this@ProfileConfigurationActivity, "Profile image deleted", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@ProfileConfigurationActivity, "Failed to delete image", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
+        val updatedUserInfo = userViewModel.userInfo.value?.copy(profileImage = null) ?: return
+        userViewModel.updateUserInfo(updatedUserInfo)
     }
 
     private fun updateNickname(newNickname: String) {
-        Log.d("ProfileConfigurationActivity", "updateNickname launched with ${userViewModel.userInfo.value}")
-        val userId = userViewModel.userInfo.value!!.userid
+        val userId = userViewModel.userInfo.value?.userid ?: return
         val updatedUserInfo = userViewModel.userInfo.value?.copy(nickname = newNickname) ?: return
-        val url = "$URL/users/$userId"
-        Log.d("ProfileConfigurationActivity", "updateNickname to $newNickname")
-
-        val requestBody = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), Gson().toJson(updatedUserInfo))
-        val request = Request.Builder()
-            .url(url)
-            .put(requestBody)
-            .build()
-
-
-        Log.d("ProfileConfigurationActivity", "requestBody is $requestBody")
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@ProfileConfigurationActivity, "Failed to update nickname", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        userViewModel.setUserInfo(updatedUserInfo)
-                        Toast.makeText(this@ProfileConfigurationActivity, "Nickname updated", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@ProfileConfigurationActivity, "Failed to update nickname", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
+        userViewModel.updateUserInfo(updatedUserInfo)
     }
 
     private fun showNicknameDialog() {
@@ -299,7 +190,6 @@ class ProfileConfigurationActivity : AppCompatActivity() {
 
         dialogBinding.submitNicknameButton.setOnClickListener {
             val newNickname = dialogBinding.nicknameEditText.text.toString().ifEmpty { "No name" }
-            Log.d("ProfileConfigurationActivity", "Nickname updated to $newNickname")
             updateNickname(newNickname)
             dialog.dismiss()
         }
@@ -318,13 +208,6 @@ class ProfileConfigurationActivity : AppCompatActivity() {
 
     private fun signOut() {
         googleSignInClient.signOut().addOnCompleteListener(this) {
-            // Clear SharedPreferences
-            val sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.clear()
-            editor.apply()
-
-            // Navigate to SignInActivity
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
             finish()
@@ -340,43 +223,8 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun deleteAccount() {
+    fun deleteAccount() {
         val userId = userViewModel.userInfo.value?.userid ?: return
-        val url = "$URL/users/$userId"
-
-        val request = Request.Builder()
-            .url(url)
-            .delete()
-            .build()
-
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    Toast.makeText(this@ProfileConfigurationActivity, "Failed to delete account", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        // Clear SharedPreferences
-                        val sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-                        val editor = sharedPreferences.edit()
-                        editor.clear()
-                        editor.apply()
-
-                        // Navigate to SignInActivity
-                        val intent = Intent(this@ProfileConfigurationActivity, SignInActivity::class.java)
-                        startActivity(intent)
-                        finish()
-
-                        Toast.makeText(this@ProfileConfigurationActivity, "Account deleted", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@ProfileConfigurationActivity, "Failed to delete account", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
+        userViewModel.deleteUser(userId)
     }
 }

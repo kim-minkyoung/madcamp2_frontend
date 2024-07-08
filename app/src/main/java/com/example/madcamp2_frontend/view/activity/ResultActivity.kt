@@ -7,9 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
-import com.example.madcamp2_frontend.view.utils.DoodleClassifier
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
-import com.example.madcamp2_frontend.view.utils.ClassifyResult
 
 class ResultActivity : AppCompatActivity() {
 

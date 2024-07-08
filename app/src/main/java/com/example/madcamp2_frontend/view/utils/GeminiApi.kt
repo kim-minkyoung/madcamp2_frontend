@@ -1,17 +1,15 @@
 package com.example.madcamp2_frontend.view.utils
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import com.google.ai.client.generativeai.BuildConfig
+import com.example.madcamp2_frontend.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerateContentResponse
 import com.google.ai.client.generativeai.type.content
-
 import kotlinx.coroutines.flow.Flow
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class GeminiApi {
-    private val apiKey = "AIzaSyDeDrQ8po9rYCW0K22oQ-x3EJnKm61Pk34"
+    private val apiKey = BuildConfig.API_KEY
 
     val generativeVisionModel = GenerativeModel(
         modelName = "gemini-pro-vision",

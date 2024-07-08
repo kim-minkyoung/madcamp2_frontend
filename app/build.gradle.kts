@@ -1,9 +1,34 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-android")
     id("kotlin-parcelize")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
+
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+
+    // Configure which keys should be ignored by the plugin by providing regular expressions.
+    // "sdk.dir" is ignored by default.
+    ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
+    ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
+}
+
+fun getSecretProperties(file: File): Properties {
+    val properties = Properties()
+    if (file.exists()) {
+        properties.load(FileInputStream(file))
+    }
+    return properties
+}
+
+// Load secrets from the properties file
+val secretProperties = getSecretProperties(rootProject.file("secrets.properties"))
 
 android {
     namespace = "com.example.madcamp2_frontend"
@@ -20,6 +45,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "API_KEY", "\"${secretProperties["API_KEY"]}\"")
     }
 
     buildTypes {
@@ -43,6 +70,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
