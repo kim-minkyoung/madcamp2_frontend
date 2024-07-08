@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
+import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 
 class ResultActivity : AppCompatActivity() {
@@ -16,11 +18,18 @@ class ResultActivity : AppCompatActivity() {
     private lateinit var binding: ActivityResultBinding
     private val userViewModel: UserViewModel by viewModels()
 
+    private var userInfo: UserInfo? = null
+
     @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        userInfo = when {
+            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
+            else -> intent.getParcelableExtra<UserInfo>("userInfo")
+        }
 
         // Get data from intent
         val bitmapFileUriString = intent.getStringExtra("bitmapFileUri")
@@ -40,7 +49,7 @@ class ResultActivity : AppCompatActivity() {
         val thirdPredictionPercentage = intent.getFloatExtra("thirdPredictionPercentage", 0f)
         val fourthPrediction = intent.getStringExtra("fourthPrediction")
         val fourthPredictionPercentage = intent.getFloatExtra("fourthPredictionPercentage", 0f)
-        val score = intent.getFloatExtra("score", 0f)
+        val score = intent.getIntExtra("score", 0)
 
         // Bind predictions to text views
         binding.bestPredictionTextView.text = "이 그림은 아마도 $bestPrediction"
@@ -48,7 +57,7 @@ class ResultActivity : AppCompatActivity() {
         binding.secondPredictionTextView.text = String.format("2등은 %s (%.1f%%)", secondPrediction, secondPredictionPercentage * 100)
         binding.thirdPredictionTextView.text = String.format("3등은 %s (%.1f%%)", thirdPrediction, thirdPredictionPercentage * 100)
         binding.fourthPredictionTextView.text = String.format("4등은 %s (%.1f%%)", fourthPrediction, fourthPredictionPercentage * 100)
-        binding.scoreTextView.text = String.format("점수: %.1f", score)
+        binding.scoreTextView.text = String.format("점수: %d", score)
 
         // Set up button click listeners
         binding.backToMainButton.setOnClickListener {
@@ -56,7 +65,9 @@ class ResultActivity : AppCompatActivity() {
         }
 
         binding.checkRankingButton.setOnClickListener {
-            startActivity(Intent(this, RankingActivity::class.java))
+            intent = Intent(this, RankingActivity::class.java)
+            intent.putExtra("userInfo", userInfo)
+            startActivity(intent)
         }
     }
 }

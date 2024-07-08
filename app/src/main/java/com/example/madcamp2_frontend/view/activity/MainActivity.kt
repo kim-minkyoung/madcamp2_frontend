@@ -1,8 +1,6 @@
 package com.example.madcamp2_frontend.view.activity
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -10,22 +8,26 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityMainBinding
+import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val userViewModel: UserViewModel by viewModels()
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
+        sharedPreferencesHelper = SharedPreferencesHelper(this)
+    }
 
-        val userid = sharedPreferences.getString("userid", null)
+    override fun onResume() {
+        super.onResume()
+        val userid = sharedPreferencesHelper.getUserId()
         Log.d("MainActivity", "User id: $userid")
         if (userid == null) {
             val signInIntent = Intent(this, SignInActivity::class.java)
@@ -44,11 +46,15 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     binding.startDrawingButton.setOnClickListener {
-                        startActivity(Intent(this, BeforeStartActivity::class.java))
+                        val intent = Intent(this, BeforeStartActivity::class.java)
+                        intent.putExtra("userInfo", userInfo)
+                        startActivity(intent)
                     }
 
                     binding.rankingButton.setOnClickListener {
-                        startActivity(Intent(this, RankingActivity::class.java))
+                        val intent = Intent(this, RankingActivity::class.java)
+                        intent.putExtra("userInfo", userInfo)
+                        startActivity(intent)
                     }
                 }
                 else {

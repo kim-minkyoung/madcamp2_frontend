@@ -33,6 +33,7 @@ class UserRepository(private val apiService: ApiService) {
     }
 
     fun updateUserInfo(userInfo: UserInfo) {
+        Log.d("updateUserInfo", "UserRepository: 난 업데이트 함")
         apiService.updateUserInfo(userInfo.userid, userInfo).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
@@ -44,6 +45,22 @@ class UserRepository(private val apiService: ApiService) {
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("UserRepository", "Failed to update user info: ${t.message}")
+            }
+        })
+    }
+
+    fun deleteProfileImage(userId: String) {
+        apiService.deleteUserProfileImage(userId).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    _userInfo.postValue(userInfo.value?.copy(profileImage = null) ?: return)
+                } else {
+                    Log.e("UserRepository", "Failed to delete user profile image: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UserRepository", "Failed to delete user: ${t.message}")
             }
         })
     }
@@ -65,6 +82,6 @@ class UserRepository(private val apiService: ApiService) {
     }
 
     fun setUserInfo(userInfo: UserInfo) {
-        _userInfo.postValue(userInfo)
+        updateUserInfo(userInfo)
     }
 }

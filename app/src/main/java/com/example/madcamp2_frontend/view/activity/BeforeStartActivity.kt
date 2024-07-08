@@ -1,40 +1,80 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.content.Intent
+import android.os.Build.VERSION.SDK_INT
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import com.example.madcamp2_frontend.databinding.ActivityBeforeStartBinding
+import com.example.madcamp2_frontend.model.network.ApiService
+import com.example.madcamp2_frontend.model.network.UserInfo
+import okhttp3.ResponseBody
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class BeforeStartActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBeforeStartBinding
-    private lateinit var randomWord: String // 랜덤 단어를 저장할 변수
+    private var randomWord: String = "Loading..."
+    private var userInfo: UserInfo? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBeforeStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 랜덤 단어 생성
-        randomWord = generateRandomWord()
+        userInfo = when {
+            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
+            else -> intent.getParcelableExtra<UserInfo>("userInfo")
+        }
 
-        // TextView에 랜덤 단어 설정
+        // Display initial value
         binding.randomWordTextView.text = randomWord
 
-        // 시작하기 버튼 클릭 리스너 설정
+        // Generate random word
+        generateRandomWord { word ->
+            val jsonObject = JSONObject(word)
+            randomWord = jsonObject.optString("word", "error")
+            // Update TextView once the random word is received
+            binding.randomWordTextView.text = randomWord
+        }
+
+        // Start button click listener
         binding.startButton.setOnClickListener {
-            // DrawingActivity로 이동하면서 랜덤 단어 전달
+            if (randomWord == "Loading...") {
+                Toast.makeText(this, "Please wait until the word is loaded.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // Navigate to DrawingActivity with random word
             val intent = Intent(this, DrawingActivity::class.java)
+            intent.putExtra("userInfo", userInfo)
             intent.putExtra("random_word", randomWord)
             startActivity(intent)
             finish()
         }
     }
 
-    // 랜덤 단어를 생성하는 함수 (예시)
-    private fun generateRandomWord(): String {
-        // 여기서 실제로 랜덤 단어를 생성하는 로직을 구현하면 됩니다.
-        // 예시로 고정된 단어 "Apple"을 반환하도록 구현합니다.
-        return "Apple"
+    // Function to generate a random word (example)
+    private fun generateRandomWord(callback: (String) -> Unit) {
+        val apiService = ApiService.create()
+        apiService.getGlobalWord().enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    val word = response.body()?.string() ?: "Error"
+                    callback(word)
+                } else {
+                    Log.e("BeforeStartActivity", "Failed to generate random word: ${response.errorBody()?.string()}")
+                    callback("Error")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("BeforeStartActivity", "Failed to generate random word: ${t.message}")
+                callback("Error")
+            }
+        })
     }
 }

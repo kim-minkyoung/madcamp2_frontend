@@ -6,8 +6,10 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
@@ -28,9 +30,9 @@ import com.example.madcamp2_frontend.databinding.ActivityProfileConfigurationBin
 import com.example.madcamp2_frontend.databinding.ItemProfileInfoBinding
 import com.example.madcamp2_frontend.databinding.NicknameDialogBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import java.io.ByteArrayOutputStream
@@ -39,9 +41,10 @@ class ProfileConfigurationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileConfigurationBinding
     private val REQUEST_CODE_STORAGE_PERMISSION = 1
-
     private val userViewModel: UserViewModel by viewModels()
+    private var userInfo: UserInfo? = null
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
     private val PERMISSIONS_32 = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE
@@ -69,18 +72,23 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         binding = ActivityProfileConfigurationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        sharedPreferencesHelper = SharedPreferencesHelper(this)
+
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
         Log.d("ProfileConfigurationActivity", "Page Created")
 
-        val userInfo = intent.getParcelableExtra<UserInfo>("userInfo")
+        userInfo = when {
+            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
+            else -> intent.getParcelableExtra<UserInfo>("userInfo")
+        }
+
         Log.d("ProfileConfigurationActivity", "user Info is $userInfo")
         userInfo?.let {
             binding.nicknameLabel.text = it.nickname
-            if (it.profileImage != "") {
+            if (it.profileImage != null && it.profileImage != "") {
                 Glide.with(this).load(it.profileImage).into(binding.profileImageView)
-            }
-            else {
-                Glide.with(this).load(R.drawable.default_profile).into(binding.profileImageView)
+            } else {
+                Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
             }
             addProfileInfo("Email", it.email)
         }
@@ -158,16 +166,33 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             val selectedImageUri: Uri? = result.data!!.data
             if (selectedImageUri != null) {
                 val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImageUri)
-                binding.profileImageView.setImageBitmap(bitmap)
-                uploadProfileImage(bitmap)
+                val compressedBitmap = compressImageIfNeeded(bitmap)
+                binding.profileImageView.setImageBitmap(compressedBitmap)
+                uploadProfileImage(compressedBitmap)
             }
         }
     }
 
+    private fun compressImageIfNeeded(bitmap: Bitmap): Bitmap {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        var imageSize = byteArrayOutputStream.size()
+
+        var quality = 90
+        while (imageSize > 5 * 1024 * 1024 && quality > 0) {
+            byteArrayOutputStream.reset()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream)
+            imageSize = byteArrayOutputStream.size()
+            quality -= 10
+        }
+
+        return BitmapFactory.decodeByteArray(byteArrayOutputStream.toByteArray(), 0, byteArrayOutputStream.size())
+    }
+
     private fun uploadProfileImage(bitmap: Bitmap) {
-        val userId = userViewModel.userInfo.value?.userid ?: return
-        val base64Image = encodeImage(bitmap)
-        val updatedUserInfo = userViewModel.userInfo.value?.copy(profileImage = base64Image) ?: return
+        val compressedBitmap = compressImageIfNeeded(bitmap)
+        val base64Image = encodeImage(compressedBitmap)
+        val updatedUserInfo = userInfo?.copy(profileImage = base64Image) ?: return
         userViewModel.updateUserInfo(updatedUserInfo)
     }
 
@@ -179,14 +204,15 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     }
 
     private fun deleteProfileImage() {
-        val userId = userViewModel.userInfo.value?.userid ?: return
-        val updatedUserInfo = userViewModel.userInfo.value?.copy(profileImage = null) ?: return
-        userViewModel.updateUserInfo(updatedUserInfo)
+        userInfo?.userid?.let { userViewModel.deleteProfileImage(it) }
+        Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
     }
 
     private fun updateNickname(newNickname: String) {
-        val userId = userViewModel.userInfo.value?.userid ?: return
-        val updatedUserInfo = userViewModel.userInfo.value?.copy(nickname = newNickname) ?: return
+        Log.d("updateNickname", "Updating nickname to $newNickname")
+        binding.nicknameLabel.text = newNickname
+        val updatedUserInfo = userInfo?.copy(nickname = newNickname) ?: return
+        Log.d("updateUserInfo", "Activity: 난 업데이트 함")
         userViewModel.updateUserInfo(updatedUserInfo)
     }
 
@@ -232,7 +258,13 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     }
 
     fun deleteAccount() {
-        val userId = userViewModel.userInfo.value?.userid ?: return
+        val userId = userInfo?.userid ?: return
         userViewModel.deleteUser(userId)
+
+        sharedPreferencesHelper.clearUserId()
+
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

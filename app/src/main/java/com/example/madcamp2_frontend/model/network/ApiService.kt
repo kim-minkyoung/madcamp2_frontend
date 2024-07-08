@@ -2,6 +2,7 @@ package com.example.madcamp2_frontend.model.network
 
 import android.os.Parcelable
 import com.example.madcamp2_frontend.view.utils.Constants
+import com.example.madcamp2_frontend.view.utils.RetrofitInstance
 import kotlinx.parcelize.Parcelize
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
@@ -38,21 +39,7 @@ interface ApiService {
 
     companion object {
         fun create(): ApiService {
-            val logging = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-
-            val client = OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .build()
-
-            val retrofit = Retrofit.Builder()
-                .baseUrl(Constants.URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build()
-
-            return retrofit.create(ApiService::class.java)
+            return RetrofitInstance.apiService
         }
     }
 }

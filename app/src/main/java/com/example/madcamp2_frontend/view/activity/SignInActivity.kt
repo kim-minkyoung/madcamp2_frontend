@@ -1,9 +1,7 @@
 // SignInActivity
 package com.example.madcamp2_frontend.view.activity
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -14,6 +12,7 @@ import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivitySignInBinding
+import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -26,10 +25,9 @@ class SignInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignInBinding
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
     private val TAG = "SignInActivity"
-    private val USER_ID_KEY = "userid"
 
     private val userViewModel: UserViewModel by viewModels()
 
@@ -38,13 +36,16 @@ class SignInActivity : AppCompatActivity() {
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
+        sharedPreferencesHelper = SharedPreferencesHelper(this)
 
         Glide.with(this)
             .load(R.raw.drawdle)
             .into(binding.drawdleLogo)
+    }
 
-        Log.d(TAG, "onCreate: Initializing Google Sign-In options")
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume: Initializing Google Sign-In options")
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -52,7 +53,7 @@ class SignInActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        Log.d(TAG, "onCreate: Google Sign-In client created")
+        Log.d(TAG, "onResume: Google Sign-In client created")
 
         binding.signInButton.setOnClickListener {
             Log.d(TAG, "signInButton clicked")
@@ -85,7 +86,12 @@ class SignInActivity : AppCompatActivity() {
             Log.d(TAG, "handleSignInResult: success, account: ${account?.email}")
             if (account != null) {
                 userViewModel.postUserEmail(account)
-                checkLoggedInUser(account)
+                userViewModel.userInfo.observe(this, Observer { userInfo ->
+                    if (userInfo != null) {
+                        saveUserId(userInfo.userid)
+                    }
+                    updateUI(account)
+                })
             }
         } catch (e: ApiException) {
             Log.w(TAG, "handleSignInResult: failed code=" + e.statusCode)
@@ -95,18 +101,9 @@ class SignInActivity : AppCompatActivity() {
 
     private fun saveUserId(userid: String?) {
         if (userid != null) {
-            sharedPreferences.edit().putString(USER_ID_KEY, userid).apply()
+            sharedPreferencesHelper.saveUserId(userid)
             Log.d(TAG, "Saved userId: $userid")
         }
-    }
-
-    private fun checkLoggedInUser(account: GoogleSignInAccount) {
-        userViewModel.userInfo.observe(this, Observer { userInfo ->
-            if (userInfo != null) {
-                saveUserId(userInfo.userid)
-            }
-            updateUI(account)
-        })
     }
 
     private fun updateUI(account: GoogleSignInAccount?) {

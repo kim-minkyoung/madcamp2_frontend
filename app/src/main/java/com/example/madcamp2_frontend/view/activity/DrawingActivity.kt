@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.*
 import android.net.Uri
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
@@ -14,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityDrawingBinding
+import com.example.madcamp2_frontend.model.network.UserInfo
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -37,6 +39,7 @@ class DrawingActivity : AppCompatActivity() {
     }
     private val path: Path = Path()
     private var remainingMilliSeconds: Long = 5000
+    private var userInfo: UserInfo? = null
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
 
@@ -45,10 +48,12 @@ class DrawingActivity : AppCompatActivity() {
         binding = ActivityDrawingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Get random word from intent
+        userInfo = when {
+            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
+            else -> intent.getParcelableExtra<UserInfo>("userInfo")
+        }
         currentWord = intent.getStringExtra("random_word") ?: ""
 
-        // Set the word to TextView
         binding.wordTextView.text = currentWord
 
         // Initial setup
@@ -125,8 +130,9 @@ class DrawingActivity : AppCompatActivity() {
         val bitmapFileUri = saveBitmapToFile(drawingBitmap)
 
         val intent = Intent(this, LoadingActivity::class.java).apply {
+            putExtra("userInfo", userInfo)
+            putExtra("target_word", currentWord)
             putExtra("bitmapFileUri", bitmapFileUri.toString())
-
             putExtra("remainingMilliSeconds", remainingMilliSeconds)
         }
         startActivity(intent)

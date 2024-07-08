@@ -37,6 +37,7 @@ class UserViewModel : ViewModel() {
 
     fun updateUserInfo(userInfo: UserInfo) {
         viewModelScope.launch {
+            Log.d("updateUserInfo", "UserViewModel: 난 업데이트 함")
             userRepository.updateUserInfo(userInfo)
         }
     }
@@ -44,6 +45,12 @@ class UserViewModel : ViewModel() {
     fun deleteUser(userId: String) {
         viewModelScope.launch {
             userRepository.deleteUser(userId)
+        }
+    }
+
+    fun deleteProfileImage(userId: String) {
+        viewModelScope.launch {
+            userRepository.deleteProfileImage(userId)
         }
     }
 
@@ -59,7 +66,8 @@ class UserViewModel : ViewModel() {
                         Log.d("postUserEmail", "User email posted successfully")
                         response.body()?.string()?.let {
                             val jsonObject = JSONObject(it)
-                            val userid = jsonObject.optString("userid", "")
+                            val userid = jsonObject.optString("_id", "")
+                            Log.d("postUserEmail", "User ID: $userid")
                             userRepository.setUserInfo(UserInfo(userid, email, nickname, account.photoUrl?.toString() ?: ""))
                         }
                     } else {
@@ -74,26 +82,4 @@ class UserViewModel : ViewModel() {
             })
         }
     }
-
-    fun updateUserNicknameOnServer(userInfo: UserInfo) {
-        viewModelScope.launch(Dispatchers.IO) {
-            apiService.updateUserInfo(userInfo.userid, userInfo).enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                    if (response.isSuccessful) {
-                        Log.d("updateUserInfoOnServer", "User info updated successfully")
-                    } else {
-                        Log.e("updateUserInfoOnServer", "Failed to update User info, response code: ${response.code()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Log.e("updateUserNicknameOnServer", "Failed to update nickname, error: ${t.message}")
-                }
-            })
-        }
-    }
 }
-
-data class UserIdResponse(
-    @SerializedName("userId") val userId: String
-)
