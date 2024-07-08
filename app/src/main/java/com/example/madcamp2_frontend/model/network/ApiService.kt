@@ -4,7 +4,9 @@ import android.os.Parcelable
 import com.example.madcamp2_frontend.view.utils.Constants
 import kotlinx.parcelize.Parcelize
 import com.google.gson.annotations.SerializedName
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,7 +19,7 @@ import retrofit2.http.Path
 
 interface ApiService {
     @POST("/users/checkEmail")
-    fun postUserEmail(@Body userInfo: UserInfo): Call<ResponseBody>
+    fun postUserEmail(@Body request: UserEmailRequest): Call<ResponseBody>
 
     @PUT("/users/{userid}")
     fun updateUserInfo(@Path("userid") userid: String, @Body userInfo: UserInfo): Call<ResponseBody>
@@ -36,9 +38,18 @@ interface ApiService {
 
     companion object {
         fun create(): ApiService {
+            val logging = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+
+            val client = OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build()
+
             val retrofit = Retrofit.Builder()
                 .baseUrl(Constants.URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
                 .build()
 
             return retrofit.create(ApiService::class.java)
@@ -54,3 +65,8 @@ data class UserInfo(
     @SerializedName("profileImage") val profileImage: String? = null,
     @SerializedName("score") val score: Int? = null
 ) : Parcelable
+
+data class UserEmailRequest(
+    val email: String,
+    val nickname: String? = "No name"
+)
