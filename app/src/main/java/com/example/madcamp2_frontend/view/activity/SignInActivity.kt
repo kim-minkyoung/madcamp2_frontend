@@ -2,7 +2,9 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,8 +31,10 @@ class SignInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignInBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var sharedPreferences: SharedPreferences
 
     private val TAG = "SignInActivity"
+    private val USER_ID_KEY = "userId"
 
     private val userViewModel: UserViewModel by viewModels()
 
@@ -38,6 +42,8 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
 
         Glide.with(this)
             .load(R.raw.drawdle)
@@ -57,17 +63,6 @@ class SignInActivity : AppCompatActivity() {
             Log.d(TAG, "signInButton clicked")
             signIn()
         }
-
-        userViewModel.userInfo.observe(this, Observer { userInfo ->
-            if (userInfo != null) {
-                val account = GoogleSignIn.getLastSignedInAccount(this)
-                if (account != null) {
-                    updateUI(account)
-                }
-            } else {
-                Log.d(TAG, "User info is null")
-            }
-        })
     }
 
     private fun signIn() {
@@ -95,6 +90,7 @@ class SignInActivity : AppCompatActivity() {
             Log.d(TAG, "handleSignInResult: success, account: ${account?.email}")
             if (account != null) {
                 userViewModel.postUserEmail(account)
+                checkLoggedInUser(account)
             }
         } catch (e: ApiException) {
             Log.w(TAG, "handleSignInResult: failed code=" + e.statusCode)
@@ -102,35 +98,21 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveUserId(userId: String?) {
+        if (userId != null) {
+            sharedPreferences.edit().putString(USER_ID_KEY, userId).apply()
+            Log.d(TAG, "Saved userId: $userId")
+        }
+    }
+
     private fun checkLoggedInUser(account: GoogleSignInAccount) {
         userViewModel.userInfo.observe(this, Observer { userInfo ->
             if (userInfo != null) {
-                Log.d(TAG, "User exists, updating UI")
-                updateUI(account)
-            } else {
-                Log.d(TAG, "User does not exist, showing nickname dialog")
-                showNicknameDialog(account)
+                saveUserId(userInfo.userid)
             }
-        })
-    }
-
-    private fun showNicknameDialog(account: GoogleSignInAccount) {
-        val dialog = Dialog(this)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        val bindingDialog = NicknameDialogBinding.inflate(LayoutInflater.from(this))
-        dialog.setContentView(bindingDialog.root)
-
-        bindingDialog.submitNicknameButton.setOnClickListener {
-            val newNickname = bindingDialog.nicknameEditText.text.toString().ifEmpty { "No name" }
-            val email = account.email ?: return@setOnClickListener
-            val profileImage = account.photoUrl?.toString() ?: ""
-            val updatedUserInfo = UserInfo("", email, newNickname, profileImage)
-            userViewModel.updateUserNicknameOnServer(updatedUserInfo)
-            dialog.dismiss()
+            Log.d(TAG, "User exists, updating UI")
             updateUI(account)
-        }
-
-        dialog.show()
+        })
     }
 
     private fun updateUI(account: GoogleSignInAccount?) {

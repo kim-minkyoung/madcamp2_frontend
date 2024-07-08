@@ -62,4 +62,8 @@ class UserRepository(private val apiService: ApiService) {
             }
         })
     }
+
+    fun setUserInfo(userInfo: UserInfo) {
+        _userInfo.postValue(userInfo)
+    }
 }

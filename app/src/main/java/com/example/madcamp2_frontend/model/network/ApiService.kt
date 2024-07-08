@@ -18,19 +18,19 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ApiService {
-    @POST("/users/checkEmail")
+    @POST("/user/checkEmail")
     fun postUserEmail(@Body request: UserEmailRequest): Call<ResponseBody>
 
-    @PUT("/users/{userid}")
+    @PUT("/user/{userid}")
     fun updateUserInfo(@Path("userid") userid: String, @Body userInfo: UserInfo): Call<ResponseBody>
 
-    @DELETE("/users/{userid}/deleteProfileImage")
+    @DELETE("/user/{userid}/deleteProfileImage")
     fun deleteUserProfileImage(@Path("userid") userid: String): Call<ResponseBody>
 
-    @GET("/users/{userid}")
+    @GET("/user/{userid}")
     fun getUserInfo(@Path("userid") userid: String): Call<UserInfo>
 
-    @DELETE("/users/{userid}")
+    @DELETE("/user/{userid}")
     fun deleteUser(@Path("userid") userid: String): Call<ResponseBody>
 
     @GET("/game/globalWord")

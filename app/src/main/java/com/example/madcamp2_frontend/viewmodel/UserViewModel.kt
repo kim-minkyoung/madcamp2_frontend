@@ -10,9 +10,11 @@ import com.example.madcamp2_frontend.model.network.UserEmailRequest
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.model.repository.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,12 +57,13 @@ class UserViewModel : ViewModel() {
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {
                         Log.d("postUserEmail", "User email posted successfully")
-                        // Assuming that the server returns the user ID in the response body as a string
-                        val userId = response.body()?.string() ?: ""
-                        getUserInfo(userId)
+                        response.body()?.string()?.let {
+                            val jsonObject = JSONObject(it)
+                            val userid = jsonObject.optString("userid", "")
+                            userRepository.setUserInfo(UserInfo(userid, email, nickname, account.photoUrl?.toString() ?: ""))
+                        }
                     } else {
-                        Log.e("postUserEmail", "Failed to post user email, response code: ${response.code()}")
-                        _error.postValue("Failed to post user email, response code: ${response.code()}")
+                        Log.e("UserViewModel", "Failed to check email, response code: ${response.code()}")
                     }
                 }
 
@@ -90,3 +93,7 @@ class UserViewModel : ViewModel() {
         }
     }
 }
+
+data class UserIdResponse(
+    @SerializedName("userId") val userId: String
+)

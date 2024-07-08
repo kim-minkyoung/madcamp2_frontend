@@ -2,6 +2,7 @@ package com.example.madcamp2_frontend.view.activity
 
 import android.Manifest
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -11,10 +12,11 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -25,8 +27,10 @@ import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityProfileConfigurationBinding
 import com.example.madcamp2_frontend.databinding.ItemProfileInfoBinding
 import com.example.madcamp2_frontend.databinding.NicknameDialogBinding
+import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import java.io.ByteArrayOutputStream
@@ -183,10 +187,10 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     }
 
     private fun showNicknameDialog() {
-        val dialogBinding = NicknameDialogBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogBinding.root)
-            .create()
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = NicknameDialogBinding.inflate(LayoutInflater.from(this))
+        dialog.setContentView(dialogBinding.root)
 
         dialogBinding.submitNicknameButton.setOnClickListener {
             val newNickname = dialogBinding.nicknameEditText.text.toString().ifEmpty { "No name" }
