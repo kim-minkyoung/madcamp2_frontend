@@ -2,13 +2,13 @@ package com.example.madcamp2_frontend.viewmodel
 
 import androidx.lifecycle.*
 import com.example.madcamp2_frontend.model.network.ApiService
-import com.example.madcamp2_frontend.model.network.UserRanking
+import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.model.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class RankingViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    val userRankings: LiveData<List<UserRanking>> = userRepository.userRankings
+    val userRankings: LiveData<List<UserInfo>> = userRepository.userRankings
 
     fun fetchUserRankings() {
         viewModelScope.launch {

@@ -11,7 +11,6 @@ import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityRankingBinding
 import com.example.madcamp2_frontend.model.network.ApiService
 import com.example.madcamp2_frontend.model.network.UserInfo
-import com.example.madcamp2_frontend.model.network.UserRanking
 import com.example.madcamp2_frontend.model.repository.UserRepository
 import com.example.madcamp2_frontend.view.adapter.RankingAdapter
 import com.example.madcamp2_frontend.viewmodel.RankingViewModel
@@ -71,7 +70,7 @@ class RankingActivity : AppCompatActivity() {
         })
     }
 
-    private fun updateMyRanking(rankings: List<UserRanking>) {
+    private fun updateMyRanking(rankings: List<UserInfo>) {
         val myRanking = rankings.find { it.email == userInfo?.email }
         myRanking?.let {
             binding.myRankPosition.text = (rankings.indexOf(it) + 1).toString()

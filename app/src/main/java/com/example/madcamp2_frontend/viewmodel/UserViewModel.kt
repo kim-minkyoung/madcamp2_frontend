@@ -46,12 +46,12 @@ class UserViewModel : ViewModel() {
             userRepository.deleteUser(userId)
         }
     }
-
-    fun deleteProfileImage(userId: String) {
-        viewModelScope.launch {
-            userRepository.deleteProfileImage(userId)
-        }
-    }
+//
+//    fun deleteProfileImage(userId: String) {
+//        viewModelScope.launch {
+//            userRepository.deleteProfileImage(userId)
+//        }
+//    }
 
     fun postUserEmail(account: GoogleSignInAccount) {
         val email = account.email ?: return
@@ -72,7 +72,7 @@ class UserViewModel : ViewModel() {
                                 val userNickname = userObject.optString("nickname", nickname)
                                 val userEmail = userObject.optString("email", email)
                                 Log.d("postUserEmail", "User ID: $userid")
-                                userRepository.setUserInfo(UserInfo(userid, userEmail, userNickname, 0, 0, 0,"monkey"))
+                                userRepository.setUserInfo(UserInfo(userid, userEmail, userNickname, "monkey", 0, 0,0))
                             } else {
                                 Log.e("postUserEmail", "User object is null")
                             }

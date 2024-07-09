@@ -6,9 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.madcamp2_frontend.databinding.ItemRankingBinding
-import com.example.madcamp2_frontend.model.network.UserRanking
+import com.example.madcamp2_frontend.model.network.UserInfo
 
-class RankingAdapter : ListAdapter<UserRanking, RankingAdapter.RankingViewHolder>(RankingDiffCallback()) {
+class RankingAdapter : ListAdapter<UserInfo, RankingAdapter.RankingViewHolder>(RankingDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RankingViewHolder {
         val binding = ItemRankingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -21,7 +21,7 @@ class RankingAdapter : ListAdapter<UserRanking, RankingAdapter.RankingViewHolder
     }
 
     class RankingViewHolder(private val binding: ItemRankingBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(userRanking: UserRanking, position: Int) {
+        fun bind(userRanking: UserInfo, position: Int) {
             binding.rankingPositionTextView.text = (position + 1).toString()
             binding.rankingNicknameTextView.text = userRanking.nickname
             binding.rankingScoreTextView.text = userRanking.score.toString()
@@ -29,12 +29,12 @@ class RankingAdapter : ListAdapter<UserRanking, RankingAdapter.RankingViewHolder
         }
     }
 
-    class RankingDiffCallback : DiffUtil.ItemCallback<UserRanking>() {
-        override fun areItemsTheSame(oldItem: UserRanking, newItem: UserRanking): Boolean {
-            return oldItem._id == newItem._id
+    class RankingDiffCallback : DiffUtil.ItemCallback<UserInfo>() {
+        override fun areItemsTheSame(oldItem: UserInfo, newItem: UserInfo): Boolean {
+            return oldItem.userid == newItem.userid
         }
 
-        override fun areContentsTheSame(oldItem: UserRanking, newItem: UserRanking): Boolean {
+        override fun areContentsTheSame(oldItem: UserInfo, newItem: UserInfo): Boolean {
             return oldItem == newItem
         }
     }

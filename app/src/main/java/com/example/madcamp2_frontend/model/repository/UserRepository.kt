@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.madcamp2_frontend.model.network.ApiService
 import com.example.madcamp2_frontend.model.network.UserInfo
-import com.example.madcamp2_frontend.model.network.UserRanking
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -16,8 +15,11 @@ class UserRepository(private val apiService: ApiService) {
     private val _userInfo = MutableLiveData<UserInfo?>()
     val userInfo: LiveData<UserInfo?> get() = _userInfo
 
-    private val _userRankings = MutableLiveData<List<UserRanking>>()
-    val userRankings: LiveData<List<UserRanking>> get() = _userRankings
+    private val _userRankings = MutableLiveData<List<UserInfo>>()
+    val userRankings: LiveData<List<UserInfo>> get() = _userRankings
+
+    private val _userTotalRankings = MutableLiveData<List<UserInfo>>()
+    val userTotalRankings: LiveData<List<UserInfo>> get() = _userTotalRankings
 
     fun getUserInfo(userId: String) {
         apiService.getUserInfo(userId).enqueue(object : Callback<UserInfo> {
@@ -52,21 +54,21 @@ class UserRepository(private val apiService: ApiService) {
         })
     }
 
-    fun deleteProfileImage(userId: String) {
-        apiService.deleteUserProfileImage(userId).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful) {
-                    _userInfo.postValue(userInfo.value?.copy(profileImage = null) ?: return)
-                } else {
-                    Log.e("UserRepository", "Failed to delete user profile image: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Log.e("UserRepository", "Failed to delete user: ${t.message}")
-            }
-        })
-    }
+//    fun deleteProfileImage(userId: String) {
+//        apiService.deleteUserProfileImage(userId).enqueue(object : Callback<ResponseBody> {
+//            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+//                if (response.isSuccessful) {
+//                    _userInfo.postValue(userInfo.value?.copy(profileImage = null) ?: return)
+//                } else {
+//                    Log.e("UserRepository", "Failed to delete user profile image: ${response.errorBody()?.string()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+//                Log.e("UserRepository", "Failed to delete user: ${t.message}")
+//            }
+//        })
+//    }
 
     fun deleteUser(userId: String) {
         apiService.deleteUser(userId).enqueue(object : Callback<ResponseBody> {
@@ -88,19 +90,38 @@ class UserRepository(private val apiService: ApiService) {
         updateUserInfo(userInfo)
     }
 
+    fun fetchUserTotalRankings() {
+        apiService.getTotalScores().enqueue(object : Callback<List<UserInfo>> {
+            override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
+                if (response.isSuccessful) {
+                    _userTotalRankings.postValue(response.body())
+                } else {
+                    Log.e("UserRepository", "Failed to fetch user rankings: ${response.code()}")
+                    _userTotalRankings.postValue(emptyList())
+                }
+            }
+
+            override fun onFailure(call: Call<List<UserInfo>>, t: Throwable) {
+                Log.e("UserRepository", "Failed to fetch user rankings", t)
+                _userTotalRankings.postValue(emptyList())
+            }
+        })
+    }
+
     fun fetchUserRankings() {
-        apiService.getAllUsers().enqueue(object : Callback<List<UserRanking>> {
-            override fun onResponse(call: Call<List<UserRanking>>, response: Response<List<UserRanking>>) {
+        apiService.getScores().enqueue(object : Callback<List<UserInfo>> {
+            override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
                 if (response.isSuccessful) {
                     _userRankings.postValue(response.body())
                 } else {
-                    Log.e("UserRepository", "Failed to fetch user rankings: ${response.errorBody()}")
+                    Log.e("UserRepository", "Failed to fetch all user scores: ${response.code()}")
                     _userRankings.postValue(emptyList())
                 }
             }
 
-            override fun onFailure(call: Call<List<UserRanking>>, t: Throwable) {
-                Log.e("UserRepository", "Failed to fetch user rankings: ${t.message}")
+            override fun onFailure(call: Call<List<UserInfo>>, t: Throwable) {
+                Log.e("UserRepository", "Failed to fetch all user scores", t)
+                _userRankings.postValue(emptyList())
             }
         })
     }
