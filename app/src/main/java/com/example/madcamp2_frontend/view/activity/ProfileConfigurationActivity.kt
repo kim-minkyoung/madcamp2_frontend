@@ -5,21 +5,12 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
 import android.view.Window
-import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -36,37 +27,36 @@ import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import java.io.ByteArrayOutputStream
 
 class ProfileConfigurationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfileConfigurationBinding
-    private val REQUEST_CODE_STORAGE_PERMISSION = 1
     private val userViewModel: UserViewModel by viewModels()
     private var userInfo: UserInfo? = null
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
-    private val PERMISSIONS_32 = arrayOf(
-        Manifest.permission.READ_EXTERNAL_STORAGE
+    private val profileImages = listOf(
+        R.drawable.bear,
+        R.drawable.cat,
+        R.drawable.cow,
+        R.drawable.dog,
+        R.drawable.fox,
+        R.drawable.frog,
+        R.drawable.hamster,
+        R.drawable.koala,
+        R.drawable.lion,
+        R.drawable.monkey,
+        R.drawable.mouse,
+        R.drawable.octopus,
+        R.drawable.panda,
+        R.drawable.pig,
+        R.drawable.polarbear,
+        R.drawable.rabbit,
+        R.drawable.tiger
     )
 
-    private val PERMISSIONS_33 = arrayOf(
-        Manifest.permission.READ_MEDIA_IMAGES,
-        Manifest.permission.READ_MEDIA_VIDEO
-    )
-
-    private val PERMISSIONS_34 = arrayOf(
-        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-    )
-
-    private val permissionsToRequest: Array<String> by lazy {
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> PERMISSIONS_34
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU -> PERMISSIONS_33
-            else -> PERMISSIONS_32
-        }
-    }
+    private var currentImageIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +80,7 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         }
 
         binding.profileImageView.setOnClickListener {
-            showProfileImageOptions(it)
+            changeProfileImage()
         }
 
         binding.modifyNicknameView.setOnClickListener {
@@ -112,27 +102,18 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             return
         }
         binding.nicknameLabel.text = userInfo.nickname
-        if (userInfo.profileImage != null && userInfo.profileImage.isNotEmpty()) {
-            Glide.with(this).load(userInfo.profileImage).into(binding.profileImageView)
+        if (!userInfo.profileImage.isNullOrEmpty()) {
+            val resId = resources.getIdentifier(userInfo.profileImage, "drawable", packageName)
+            if (resId != 0) {
+                binding.profileImageView.setImageResource(resId)
+            } else {
+                Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
+            }
         } else {
             Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
         }
         addProfileInfo("Email", userInfo.email)
         addProfileInfo("Score", userInfo.score.toString())
-    }
-
-    private fun allPermissionsGranted(): Boolean {
-        return permissionsToRequest.all { permission ->
-            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    private fun requestPermissions() {
-        if (permissionsToRequest.any { permission ->
-                ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
-            }) {
-            ActivityCompat.requestPermissions(this, permissionsToRequest, REQUEST_CODE_STORAGE_PERMISSION)
-        }
     }
 
     private fun addProfileInfo(title: String, detail: String) {
@@ -142,81 +123,14 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         binding.infoContainer.addView(itemBinding.root)
     }
 
-    private fun showProfileImageOptions(view: View) {
-        val popup = PopupMenu(this, view)
-        popup.menuInflater.inflate(R.menu.profile_image_options_menu, popup.menu)
+    private fun changeProfileImage() {
+        currentImageIndex = (currentImageIndex + 1) % profileImages.size
+        val selectedImageResId = profileImages[currentImageIndex]
+        binding.profileImageView.setImageResource(selectedImageResId)
 
-        popup.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.modify_image -> {
-                    if (!allPermissionsGranted()) {
-                        requestPermissions()
-                    } else {
-                        pickImageFromGallery()
-                    }
-                    true
-                }
-                R.id.delete_image -> {
-                    deleteProfileImage()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        popup.show()
-    }
-
-    private fun pickImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        profileImageLauncher.launch(intent)
-    }
-
-    private val profileImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK && result.data != null) {
-            val selectedImageUri: Uri? = result.data!!.data
-            if (selectedImageUri != null) {
-                val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, selectedImageUri)
-                val compressedBitmap = compressImageIfNeeded(bitmap)
-                binding.profileImageView.setImageBitmap(compressedBitmap)
-                uploadProfileImage(compressedBitmap)
-            }
-        }
-    }
-
-    private fun compressImageIfNeeded(bitmap: Bitmap): Bitmap {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-        var imageSize = byteArrayOutputStream.size()
-
-        var quality = 90
-        while (imageSize > 5 * 1024 * 1024 && quality > 0) {
-            byteArrayOutputStream.reset()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream)
-            imageSize = byteArrayOutputStream.size()
-            quality -= 10
-        }
-
-        return BitmapFactory.decodeByteArray(byteArrayOutputStream.toByteArray(), 0, byteArrayOutputStream.size())
-    }
-
-    private fun uploadProfileImage(bitmap: Bitmap) {
-        val compressedBitmap = compressImageIfNeeded(bitmap)
-        val base64Image = encodeImage(compressedBitmap)
-        val updatedUserInfo = userInfo?.copy(profileImage = base64Image) ?: return
+        val imageName = resources.getResourceEntryName(selectedImageResId)
+        val updatedUserInfo = userInfo?.copy(profileImage = imageName, score = 0) ?: return
         userViewModel.updateUserInfo(updatedUserInfo)
-    }
-
-    private fun encodeImage(bm: Bitmap): String {
-        val baos = ByteArrayOutputStream()
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val b = baos.toByteArray()
-        return Base64.encodeToString(b, Base64.DEFAULT)
-    }
-
-    private fun deleteProfileImage() {
-        userInfo?.userid?.let { userViewModel.deleteProfileImage(it) }
-        Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
     }
 
     private fun updateNickname(newNickname: String) {

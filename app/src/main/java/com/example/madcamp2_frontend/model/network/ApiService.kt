@@ -53,8 +53,10 @@ data class UserInfo(
     @SerializedName("_id") val userid: String,
     @SerializedName("email") val email: String,
     @SerializedName("nickname") val nickname: String? = null,
-    @SerializedName("profileImage") val profileImage: String? = null,
-    @SerializedName("score") val score: Int? = 0
+    @SerializedName("score") val score: Int? = null,
+    @SerializedName("totalScore") val totalScore: Int? = null,
+    @SerializedName("playCount") val playCount: Int? = null,
+    @SerializedName("profileImage") val profileImage: String? = "monkey"
 ) : Parcelable
 
 data class UserEmailRequest(

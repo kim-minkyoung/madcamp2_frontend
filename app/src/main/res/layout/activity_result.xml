@@ -122,6 +122,7 @@
         android:fontFamily="@font/bazzi"
         android:text="한 판 더?"
         android:textSize="22sp"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -142,6 +143,7 @@
         android:fontFamily="@font/bazzi"
         android:text="메인 화면으로"
         android:textSize="22sp"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/checkRankingButton"
         app:layout_constraintStart_toStartOf="parent" />
@@ -155,6 +157,7 @@
         android:fontFamily="@font/bazzi"
         android:text="순위 확인하기"
         android:textSize="22sp"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/backToMainButton" />

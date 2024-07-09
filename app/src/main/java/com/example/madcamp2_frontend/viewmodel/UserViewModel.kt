@@ -65,9 +65,17 @@ class UserViewModel : ViewModel() {
                         Log.d("postUserEmail", "User email posted successfully")
                         response.body()?.string()?.let {
                             val jsonObject = JSONObject(it)
-                            val userid = jsonObject.optString("_id", "")
-                            Log.d("postUserEmail", "User ID: $userid")
-                            userRepository.setUserInfo(UserInfo(userid, email, nickname, account.photoUrl?.toString() ?: ""))
+                            val isExistingUser = jsonObject.optBoolean("isExistingUser", false)
+                            val userObject = jsonObject.optJSONObject("user")
+                            if (userObject != null) {
+                                val userid = userObject.optString("_id", "")
+                                val userNickname = userObject.optString("nickname", nickname)
+                                val userEmail = userObject.optString("email", email)
+                                Log.d("postUserEmail", "User ID: $userid")
+                                userRepository.setUserInfo(UserInfo(userid, userEmail, userNickname, 0, 0, 0,"monkey"))
+                            } else {
+                                Log.e("postUserEmail", "User object is null")
+                            }
                         }
                     } else {
                         Log.e("UserViewModel", "Failed to check email, response code: ${response.code()}")
@@ -81,4 +89,5 @@ class UserViewModel : ViewModel() {
             })
         }
     }
+
 }

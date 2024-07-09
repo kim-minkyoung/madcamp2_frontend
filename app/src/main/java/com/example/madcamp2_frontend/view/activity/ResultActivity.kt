@@ -1,18 +1,33 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
+import com.example.madcamp2_frontend.databinding.NicknameDialogBinding
+import com.example.madcamp2_frontend.databinding.OnemoreDialogBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.view.utils.Constants
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
 class ResultActivity : AppCompatActivity() {
 
@@ -22,11 +37,20 @@ class ResultActivity : AppCompatActivity() {
     private var userInfo: UserInfo? = null
     private var updateCalled = false // Flag to track if the update has been made
 
+    private var rewardedAd: RewardedAd? = null
+    private val TAG = "ResultActivity"
+
     @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize Mobile Ads SDK
+        MobileAds.initialize(this) {}
+
+        // Load the rewarded ad
+        loadRewardedAd()
 
         // Get data from intent
         val bitmapFileUriString = intent.getStringExtra("bitmapFileUri")
@@ -65,15 +89,15 @@ class ResultActivity : AppCompatActivity() {
                     if (!updateCalled) {
                         updateCalled = true // Set the flag to true to prevent multiple updates
                         if (fetchedUserInfo.score != null) {
-                            val updatedScore = score
-                            userViewModel.updateUserInfo(fetchedUserInfo.copy(score = score))
-                            Log.d("ResultActivity", "User score updated: $updatedScore")
+                            val updatedScore = fetchedUserInfo.score + score
+                            userViewModel.updateUserInfo(fetchedUserInfo.copy(score = updatedScore))
+                            Log.d(TAG, "User score updated: $updatedScore")
                         } else {
-                            Log.d("ResultActivity", "User score is null")
+                            Log.d(TAG, "User score is null")
                         }
                     }
                 } else {
-                    Log.d("ResultActivity", "User info is null")
+                    Log.d(TAG, "User info is null")
                 }
             })
         }
@@ -81,11 +105,15 @@ class ResultActivity : AppCompatActivity() {
         // Set up button click listeners
         binding.scoreHelpButton.setOnClickListener {
             val view = binding.scoreExplanationTextView
-            view.visibility = if (view.visibility == View.VISIBLE){
+            view.visibility = if (view.visibility == View.VISIBLE) {
                 View.INVISIBLE
-            } else{
+            } else {
                 View.VISIBLE
             }
+        }
+
+        binding.oneMoreButton.setOnClickListener {
+            showOnemoreDialog()
         }
 
         binding.backToMainButton.setOnClickListener {
@@ -96,6 +124,74 @@ class ResultActivity : AppCompatActivity() {
             val intent = Intent(this, RankingActivity::class.java)
             intent.putExtra("userid", userInfo?.userid)
             startActivity(intent)
+        }
+    }
+
+    private fun showOnemoreDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = OnemoreDialogBinding.inflate(LayoutInflater.from(this))
+        dialog.setContentView(dialogBinding.root)
+
+        dialogBinding.PositiveButton.setOnClickListener {
+            dialog.dismiss()
+            showRewardedAd()
+        }
+        dialogBinding.NegativeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun loadRewardedAd() {
+        val adRequest = AdRequest.Builder().build()
+
+        RewardedAd.load(this, Constants.AD_UNIT_ID, adRequest, object : RewardedAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(TAG, "Ad wasn't loaded: ${adError.message}")
+                rewardedAd = null
+                loadRewardedAd()
+            }
+
+            override fun onAdLoaded(rewardedAd: RewardedAd) {
+                Log.d(TAG, "Ad was loaded.")
+                this@ResultActivity.rewardedAd = rewardedAd
+
+                rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "Ad was dismissed.")
+                        loadRewardedAd()
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        Log.d(TAG, "Ad failed to show.")
+                        loadRewardedAd()
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        Log.d(TAG, "Ad showed fullscreen content.")
+                        this@ResultActivity.rewardedAd = null
+                    }
+                }
+            }
+        })
+    }
+
+    private fun showRewardedAd() {
+        rewardedAd?.let { ad ->
+            ad.show(this) { rewardItem ->
+                Log.d(TAG, "User earned the reward.")
+                // User earned reward, navigate to BeforeStartActivity
+                val intent = Intent(this, BeforeStartActivity::class.java)
+                intent.putExtra("userInfo", userInfo)
+                startActivity(intent)
+                finish()
+            }
+        } ?: run {
+            Log.d(TAG, "The rewarded ad wasn't ready yet.")
+            Toast.makeText(this, "The rewarded ad wasn't ready yet.", Toast.LENGTH_SHORT).show()
+            loadRewardedAd() // Load the ad if not loaded
         }
     }
 }

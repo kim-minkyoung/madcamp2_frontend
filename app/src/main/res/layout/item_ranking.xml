@@ -17,7 +17,7 @@
         android:textColor="@android:color/black"
         android:layout_gravity="center_vertical"/>
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/rankingAvatarImageView"
         android:layout_width="50dp"
         android:layout_height="50dp"

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="30dp"
+    android:background="@drawable/pink_gradient">
+
+    <TextView
+        android:id="@+id/dialogTitleView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="24sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="광고 보고 한 판 더! 😆" />
+
+    <TextView
+        android:id="@+id/explanationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="광고를 보면 다음 정각이 되기 전까지\n딱 한 판 더 플레이할 수 있어요." />
+
+    <TextView
+        android:id="@+id/detailedExplanationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="단, 최고 점수를 선택할 수는 없어요.\n상남자 상여자는 무조건 마지막 점수로!!" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+        <Button
+            android:id="@+id/PositiveButton"
+            android:layout_width="115dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bazzi"
+            android:text="오케이"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+
+        <Button
+            android:id="@+id/NegativeButton"
+            android:layout_width="115dp"
+            android:layout_height="wrap_content"
+            android:text="괜찮아요"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/bazzi"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp" />
+    </LinearLayout>
+
+</LinearLayout>

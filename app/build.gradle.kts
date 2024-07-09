@@ -83,7 +83,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.play.services.ads.lite)
     testImplementation(libs.mockk)
+    implementation(libs.play.services.ads)
     implementation(libs.retrofit)
     implementation(libs.gson)
     implementation(libs.converter.gson)

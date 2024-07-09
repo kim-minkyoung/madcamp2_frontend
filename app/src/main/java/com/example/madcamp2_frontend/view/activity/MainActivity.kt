@@ -39,14 +39,15 @@ class MainActivity : AppCompatActivity() {
             userViewModel.userInfo.observe(this) { userInfo ->
                 if (userInfo != null) {
                     Log.d("MainActivity", "User info exists: $userInfo")
-                    binding.profileButton.setOnClickListener {
-                        val intent = Intent(this, ProfileConfigurationActivity::class.java)
+
+                    binding.startDrawingButton.setOnClickListener {
+                        val intent = Intent(this, BeforeStartActivity::class.java)
                         intent.putExtra("userid", userInfo.userid)
                         startActivity(intent)
                     }
 
-                    binding.startDrawingButton.setOnClickListener {
-                        val intent = Intent(this, BeforeStartActivity::class.java)
+                    binding.profileButton.setOnClickListener {
+                        val intent = Intent(this, ProfileConfigurationActivity::class.java)
                         intent.putExtra("userid", userInfo.userid)
                         startActivity(intent)
                     }

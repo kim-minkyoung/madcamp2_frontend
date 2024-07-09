@@ -39,6 +39,7 @@
         android:layout_height="wrap_content"
         android:text="시작하기"
         android:textSize="20sp"
+        android:textColor="@color/black"
         android:fontFamily="@font/bazzi"
         android:background="@drawable/rounded_rectangle"
         android:layout_centerHorizontal="true"
