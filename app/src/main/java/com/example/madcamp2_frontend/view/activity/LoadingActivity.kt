@@ -30,7 +30,7 @@ class LoadingActivity : AppCompatActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
     private val geminiApi = GeminiApi()
     private var remainingMilliSeconds: Long = 0
-    private var userViewModel: UserViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
 
     private var userInfo: UserInfo? = null
 

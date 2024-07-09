@@ -85,9 +85,43 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/backToMainButton" />
 
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:gravity="right"
+        android:text="점수 산출 기준: 100 * 일치율 * (1 - 0.1f * 그림 그린 시간) / 5000"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@id/backToMainButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fourthPredictionTextView"
+        app:layout_constraintVertical_bias="0.658" />
+
+    <Button
+        android:id="@+id/oneMoreButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:fontFamily="@font/bazzi"
+        android:text="한 판 더?"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@id/backToMainButton" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
     <Button
         android:id="@+id/backToMainButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="메인 화면으로"
         android:textSize="22sp"
@@ -99,12 +133,13 @@
 
     <Button
         android:id="@+id/checkRankingButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="순위 확인하기"
         android:textSize="22sp"
         android:fontFamily="@font/bazzi"
         android:layout_marginBottom="16dp"
+        android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/backToMainButton"
         app:layout_constraintEnd_toEndOf="parent" />

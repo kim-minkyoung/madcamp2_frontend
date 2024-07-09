@@ -83,6 +83,7 @@ android {
 }
 
 dependencies {
+    testImplementation("io.mockk:mockk:1.13.2")
     implementation(libs.retrofit)
     implementation(libs.gson)
     implementation(libs.converter.gson)
