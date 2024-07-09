@@ -70,6 +70,11 @@ class MainActivity : AppCompatActivity() {
                         intent.putExtra("userid", userInfo.userid)
                         startActivity(intent)
                     }
+
+                    binding.helpButton.setOnClickListener {
+                        val intent = Intent(this, HelpActivity::class.java)
+                        startActivity(intent)
+                    }
                 }
                 else {
                     Log.d("MainActivity", "User info is null")

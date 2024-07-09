@@ -24,13 +24,13 @@
         android:text="당신에게 주어진 기회는 1시간에 단 2번!"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="320dp"
+        android:layout_width="match_parent"
         android:layout_height="160dp"
+        android:layout_gravity="center"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_gravity="center" >
+        android:layout_marginBottom="16dp">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_start"
@@ -55,14 +55,13 @@
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@+id/startDrawingButton"
             app:layout_constraintStart_toStartOf="@+id/guideline_start"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.2" />
 
         <ImageButton
             android:id="@+id/startDrawingButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:background="@drawable/play_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
@@ -79,9 +78,23 @@
             android:background="@drawable/leaderboard_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
+
+            app:layout_constraintStart_toEndOf="@+id/startDrawingButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.2"/>
+
+        <ImageButton
+            android:id="@+id/helpButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="76dp"
+            android:background="@drawable/help_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@+id/guideline_end"
             app:layout_constraintStart_toEndOf="@+id/startDrawingButton"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
