@@ -49,8 +49,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:padding="25dp"
-        android:background="@drawable/pink_gradient">
+        android:padding="8dp"
+        android:background="@drawable/pink_gradient" >
 
         <TextView
             android:id="@+id/myRankPosition"

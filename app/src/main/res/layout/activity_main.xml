@@ -16,6 +16,13 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="20sp"
+        android:text="당신에게 주어진 기회는 1시간에 단 2번!"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="320dp"
         android:layout_height="160dp"
