@@ -130,7 +130,7 @@ class DrawingActivity : AppCompatActivity() {
         val bitmapFileUri = saveBitmapToFile(drawingBitmap)
 
         val intent = Intent(this, LoadingActivity::class.java).apply {
-            putExtra("userInfo", userInfo)
+            putExtra("userid", userInfo?.userid)
             putExtra("target_word", currentWord)
             putExtra("bitmapFileUri", bitmapFileUri.toString())
             putExtra("remainingMilliSeconds", remainingMilliSeconds)

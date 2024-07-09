@@ -50,7 +50,7 @@ class BeforeStartActivity : AppCompatActivity() {
             }
             // Navigate to DrawingActivity with random word
             val intent = Intent(this, DrawingActivity::class.java)
-            intent.putExtra("userInfo", userInfo)
+            intent.putExtra("userid", userInfo?.userid)
             intent.putExtra("random_word", randomWord)
             startActivity(intent)
             finish()

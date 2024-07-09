@@ -41,19 +41,19 @@ class MainActivity : AppCompatActivity() {
                     Log.d("MainActivity", "User info exists: $userInfo")
                     binding.profileButton.setOnClickListener {
                         val intent = Intent(this, ProfileConfigurationActivity::class.java)
-                        intent.putExtra("userInfo", userInfo)
+                        intent.putExtra("userid", userInfo.userid)
                         startActivity(intent)
                     }
 
                     binding.startDrawingButton.setOnClickListener {
                         val intent = Intent(this, BeforeStartActivity::class.java)
-                        intent.putExtra("userInfo", userInfo)
+                        intent.putExtra("userid", userInfo.userid)
                         startActivity(intent)
                     }
 
                     binding.rankingButton.setOnClickListener {
                         val intent = Intent(this, RankingActivity::class.java)
-                        intent.putExtra("userInfo", userInfo)
+                        intent.putExtra("userid", userInfo.userid)
                         startActivity(intent)
                     }
                 }

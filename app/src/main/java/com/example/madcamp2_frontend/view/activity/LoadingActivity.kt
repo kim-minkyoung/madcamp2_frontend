@@ -125,7 +125,7 @@ class LoadingActivity : AppCompatActivity() {
 
     private fun navigateToBeforeStartActivity() {
         val intent = Intent(this, BeforeStartActivity::class.java)
-        intent.putExtra("userInfo", userInfo)
+        intent.putExtra("userid", userInfo?.userid)
         startActivity(intent)
         finish()
     }
@@ -158,7 +158,7 @@ class LoadingActivity : AppCompatActivity() {
         val score = calculateScoreIfMatches(listOf(bestPrediction, secondPrediction, thirdPrediction, fourthPrediction))
 
         val intent = Intent(this, ResultActivity::class.java).apply {
-            putExtra("userInfo", userInfo)
+            putExtra("userid", userInfo?.userid)
             putExtra("bitmapFileUri", bitmapFileUriString)
             putExtra("bestPrediction", bestPrediction.first)
             putExtra("bestPredictionPercentage", bestPrediction.second)
