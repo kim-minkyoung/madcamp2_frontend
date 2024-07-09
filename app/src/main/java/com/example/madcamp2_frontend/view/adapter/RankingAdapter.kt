@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.madcamp2_frontend.databinding.ItemRankingBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
 
-class RankingAdapter : ListAdapter<UserInfo, RankingAdapter.RankingViewHolder>(DiffCallback()) {
+class RankingAdapter(private val isTotalRanking: Boolean) : ListAdapter<UserInfo, RankingAdapter.RankingViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RankingViewHolder {
         val binding = ItemRankingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -16,21 +16,19 @@ class RankingAdapter : ListAdapter<UserInfo, RankingAdapter.RankingViewHolder>(D
     }
 
     override fun onBindViewHolder(holder: RankingViewHolder, position: Int) {
-        holder.bind(getItem(position), position)
+        val userInfo = getItem(position)
+        holder.bind(userInfo, position + 1, isTotalRanking)
     }
 
     class RankingViewHolder(private val binding: ItemRankingBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(userInfo: UserInfo, position: Int) {
-            binding.rankingPositionTextView.text = (position+1).toString()
-            binding.rankingNicknameTextView.text = userInfo.nickname
-            binding.rankingScoreTextView.text = userInfo.score.toString()
 
-            val resourceId = binding.root.context.resources.getIdentifier(userInfo.profileImage, "drawable", binding.root.context.packageName)
-            if (resourceId != 0) {
-                binding.rankingAvatarImageView.setImageResource(resourceId)
-            } else {
-                binding.rankingAvatarImageView.setImageResource(com.example.madcamp2_frontend.R.drawable.default_profile_light)
-            }
+        fun bind(userInfo: UserInfo, position: Int, isTotalRanking: Boolean) {
+            binding.rankingPositionTextView.text = position.toString()
+            binding.rankingNicknameTextView.text = userInfo.nickname
+            binding.rankingScoreTextView.text = if (isTotalRanking) userInfo.totalScore.toString() else userInfo.score.toString()
+            binding.rankingAvatarImageView.setImageResource(
+                binding.root.context.resources.getIdentifier(userInfo.profileImage, "drawable", binding.root.context.packageName)
+            )
         }
     }
 

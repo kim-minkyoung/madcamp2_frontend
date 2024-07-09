@@ -40,7 +40,7 @@ class TotalRankingFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = RankingAdapter()
+        adapter = RankingAdapter(isTotalRanking = true)
         binding.rankingRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.rankingRecyclerView.adapter = adapter
     }

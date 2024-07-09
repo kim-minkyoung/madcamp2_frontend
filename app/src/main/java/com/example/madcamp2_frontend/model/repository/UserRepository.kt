@@ -17,8 +17,8 @@ class UserRepository(private val apiService: ApiService) {
     private val _userInfo = MutableLiveData<UserInfo?>()
     val userInfo: LiveData<UserInfo?> get() = _userInfo
 
-    private val _userRankings = MutableLiveData<List<UserInfo>>()
-    val userRankings: LiveData<List<UserInfo>> get() = _userRankings
+    private val _userRecentRankings = MutableLiveData<List<UserInfo>>()
+    val userRecentRankings: LiveData<List<UserInfo>> get() = _userRecentRankings
 
     private val _userTotalRankings = MutableLiveData<List<UserInfo>>()
     val userTotalRankings: LiveData<List<UserInfo>> get() = _userTotalRankings
@@ -117,16 +117,16 @@ class UserRepository(private val apiService: ApiService) {
         apiService.getScores().enqueue(object : Callback<List<UserInfo>> {
             override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
                 if (response.isSuccessful) {
-                    _userRankings.postValue(response.body())
+                    _userRecentRankings.postValue(response.body())
                 } else {
                     Log.e("UserRepository", "Failed to fetch all user scores: ${response.code()}")
-                    _userRankings.postValue(emptyList())
+                    _userRecentRankings.postValue(emptyList())
                 }
             }
 
             override fun onFailure(call: Call<List<UserInfo>>, t: Throwable) {
                 Log.e("UserRepository", "Failed to fetch all user scores", t)
-                _userRankings.postValue(emptyList())
+                _userRecentRankings.postValue(emptyList())
             }
         })
     }

@@ -3,6 +3,7 @@ package com.example.madcamp2_frontend.view.activity
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -11,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -57,6 +59,8 @@ class ResultActivity : AppCompatActivity() {
         val bitmapFileUri = Uri.parse(bitmapFileUriString)
         val inputStream = contentResolver.openInputStream(bitmapFileUri!!)
         val drawingBitmap = BitmapFactory.decodeStream(inputStream)
+
+        // TODO: SharedPrefences로 current word 저장하기
 
         // Display the drawing
         binding.drawingImageView.setImageBitmap(drawingBitmap)
@@ -162,11 +166,18 @@ class ResultActivity : AppCompatActivity() {
         val dialogBinding = OnemoreProhibitedDialogBinding.inflate(LayoutInflater.from(this))
         dialog.setContentView(dialogBinding.root)
 
+        dialog.window?.setLayout(350.dpToPx(this), LinearLayout.LayoutParams.WRAP_CONTENT)
+
         dialogBinding.PositiveButton.setOnClickListener {
             dialog.dismiss()
         }
         dialog.show()
     }
+
+    private fun Int.dpToPx(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
+    }
+
 
     private fun loadRewardedAd() {
         val adRequest = AdRequest.Builder().build()
@@ -204,13 +215,12 @@ class ResultActivity : AppCompatActivity() {
 
     private fun showRewardedAd() {
         rewardedAd?.let { ad ->
-            ad.show(this) { rewardItem ->
+            ad.show(this) {
                 Log.d(TAG, "User earned the reward.")
-                // User earned reward, navigate to BeforeStartActivity
                 val intent = Intent(this, BeforeStartActivity::class.java)
                 intent.putExtra("userInfo", userInfo)
-                startActivity(intent)
                 finish()
+                startActivity(intent)
             }
         } ?: run {
             Log.d(TAG, "The rewarded ad wasn't ready yet.")

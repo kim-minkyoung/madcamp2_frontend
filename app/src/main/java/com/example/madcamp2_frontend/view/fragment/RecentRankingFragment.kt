@@ -40,16 +40,16 @@ class RecentRankingFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = RankingAdapter()
+        adapter = RankingAdapter(isTotalRanking = false)
         binding.rankingRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.rankingRecyclerView.adapter = adapter
     }
 
     private fun observeViewModel() {
-        rankingViewModel.userRecentRankings.observe(viewLifecycleOwner, Observer { rankings ->
-            if (rankings != null) {
-                Log.d("RecentRankingFragment", "Received user recent rankings: $rankings")
-                adapter.submitList(rankings)
+        rankingViewModel.userRecentRankings.observe(viewLifecycleOwner, Observer { recentRankings ->
+            if (recentRankings != null) {
+                Log.d("RecentRankingFragment", "Received user recent rankings: $recentRankings")
+                adapter.submitList(recentRankings)
             } else {
                 Log.e("RecentRankingFragment", "User recent rankings are null")
             }

@@ -39,6 +39,9 @@ class BeforeStartActivity : AppCompatActivity() {
             })
         }
 
+        /* TODO: SharedPreferences에서 current word 받아서 비교
+        *   playcount가 2고 단어가 같으면 block */
+
         // Display initial value
         binding.randomWordTextView.text = randomWord
 

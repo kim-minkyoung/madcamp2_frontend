@@ -32,25 +32,25 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
     private var hasUpdated = false
 
-//    private val profileImages = listOf(
-//        R.drawable.bear,
-//        R.drawable.cat,
-//        R.drawable.cow,
-//        R.drawable.dog,
-//        R.drawable.fox,
-//        R.drawable.frog,
-//        R.drawable.hamster,
-//        R.drawable.koala,
-//        R.drawable.lion,
-//        R.drawable.monkey,
-//        R.drawable.mouse,
-//        R.drawable.octopus,
-//        R.drawable.panda,
-//        R.drawable.pig,
-//        R.drawable.polarbear,
-//        R.drawable.rabbit,
-//        R.drawable.tiger
-//    )
+    private val profileImages = listOf(
+        R.drawable.bear,
+        R.drawable.cat,
+        R.drawable.cow,
+        R.drawable.dog,
+        R.drawable.fox,
+        R.drawable.frog,
+        R.drawable.hamster,
+        R.drawable.koala,
+        R.drawable.lion,
+        R.drawable.monkey,
+        R.drawable.mouse,
+        R.drawable.octopus,
+        R.drawable.panda,
+        R.drawable.pig,
+        R.drawable.polarbear,
+        R.drawable.rabbit,
+        R.drawable.tiger
+    )
 
     private var currentImageIndex = 0
 
@@ -78,9 +78,9 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             })
         }
 
-//        binding.profileImageView.setOnClickListener {
-//            changeProfileImage()
-//        }
+        binding.profileImageView.setOnClickListener {
+            changeProfileImage()
+        }
 
         binding.modifyNicknameView.setOnClickListener {
             showNicknameDialog()
@@ -123,15 +123,15 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         binding.infoContainer.addView(itemBinding.root)
     }
 
-//    private fun changeProfileImage() {
-//        currentImageIndex = (currentImageIndex + 1) % profileImages.size
-//        val selectedImageResId = profileImages[currentImageIndex]
-//        binding.profileImageView.setImageResource(selectedImageResId)
-//
-//        val imageName = resources.getResourceEntryName(selectedImageResId)
-//        val updatedUserInfo = userInfo?.copy(profileImage = imageName, score = 0) ?: return
-//        userViewModel.updateUserInfo(updatedUserInfo)
-//    }
+    private fun changeProfileImage() {
+        currentImageIndex = (currentImageIndex + 1) % profileImages.size
+        val selectedImageResId = profileImages[currentImageIndex]
+        binding.profileImageView.setImageResource(selectedImageResId)
+
+        val imageName = resources.getResourceEntryName(selectedImageResId)
+        val updatedUserInfo = userInfo?.copy(profileImage = imageName, score = 0) ?: return
+        userViewModel.updateUserInfo(updatedUserInfo)
+    }
 
     private fun updateNickname(newNickname: String) {
         Log.d("updateNickname", "Updating nickname to $newNickname")
