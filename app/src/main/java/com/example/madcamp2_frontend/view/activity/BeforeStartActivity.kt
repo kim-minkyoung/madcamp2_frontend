@@ -1,9 +1,12 @@
 package com.example.madcamp2_frontend.view.activity
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.Window
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityBeforeStartBinding
@@ -16,6 +19,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.activity.viewModels
+import com.example.madcamp2_frontend.databinding.OnemoreProhibitedDialogBinding
 
 class BeforeStartActivity : AppCompatActivity() {
 
@@ -35,6 +39,9 @@ class BeforeStartActivity : AppCompatActivity() {
             userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
                 if (fetchedUserInfo != null) {
                     userInfo = fetchedUserInfo
+                    if (userInfo!!.playCount!! > 1) {
+                        showOnemoreProhibitedDialog()
+                    }
                 }
             })
         }
@@ -87,5 +94,21 @@ class BeforeStartActivity : AppCompatActivity() {
                 callback("Error")
             }
         })
+    }
+
+    private fun showOnemoreProhibitedDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = OnemoreProhibitedDialogBinding.inflate(LayoutInflater.from(this))
+        dialog.setContentView(dialogBinding.root)
+
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(false)
+
+        dialogBinding.PositiveButton.setOnClickListener {
+            dialog.dismiss()
+            onBackPressed()
+        }
+        dialog.show()
     }
 }
