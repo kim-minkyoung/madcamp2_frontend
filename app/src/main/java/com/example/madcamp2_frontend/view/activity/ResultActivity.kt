@@ -1,6 +1,7 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -12,12 +13,11 @@ import android.view.View
 import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
-import com.example.madcamp2_frontend.databinding.NicknameDialogBinding
 import com.example.madcamp2_frontend.databinding.OnemoreDialogBinding
+import com.example.madcamp2_frontend.databinding.OnemoreProhibitedDialogBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.view.utils.Constants
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
@@ -86,16 +86,6 @@ class ResultActivity : AppCompatActivity() {
             userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
                 if (fetchedUserInfo != null) {
                     userInfo = fetchedUserInfo
-                    if (!updateCalled) {
-                        updateCalled = true // Set the flag to true to prevent multiple updates
-                        if (fetchedUserInfo.score != null) {
-                            val updatedScore = fetchedUserInfo.score + score
-                            userViewModel.updateUserInfo(fetchedUserInfo.copy(score = updatedScore))
-                            Log.d(TAG, "User score updated: $updatedScore")
-                        } else {
-                            Log.d(TAG, "User score is null")
-                        }
-                    }
                 } else {
                     Log.d(TAG, "User info is null")
                 }
@@ -113,17 +103,35 @@ class ResultActivity : AppCompatActivity() {
         }
 
         binding.oneMoreButton.setOnClickListener {
-            showOnemoreDialog()
+            if (userInfo != null) {
+                if (userInfo!!.playCount!! <= 1) {
+                    userInfo!!.playCount?.let { it1 ->
+                        userViewModel.updateUserScore(
+                            userInfo!!.userid, score,
+                            it1.plus(1)
+                        )
+                    }
+                    showOnemoreDialog()
+                } else {
+                    showOnemoreProhibitedDialog()
+                }
+            }
         }
 
         binding.backToMainButton.setOnClickListener {
+            if (userInfo != null) {
+                userViewModel.updateUserScore(userInfo!!.userid, score, 2)
+            }
             finish()
         }
 
         binding.checkRankingButton.setOnClickListener {
-            val intent = Intent(this, RankingActivity::class.java)
-            intent.putExtra("userid", userInfo?.userid)
-            startActivity(intent)
+            if (userInfo != null) {
+                userViewModel.updateUserScore(userInfo!!.userid, score, 2)
+                val intent = Intent(this, RankingActivity::class.java)
+                intent.putExtra("userid", userInfo?.userid)
+                startActivity(intent)
+            }
         }
     }
 
@@ -141,6 +149,18 @@ class ResultActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
+        dialog.show()
+    }
+
+    private fun showOnemoreProhibitedDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = OnemoreProhibitedDialogBinding.inflate(LayoutInflater.from(this))
+        dialog.setContentView(dialogBinding.root)
+
+        dialogBinding.PositiveButton.setOnClickListener {
+            dialog.dismiss()
+        }
         dialog.show()
     }
 

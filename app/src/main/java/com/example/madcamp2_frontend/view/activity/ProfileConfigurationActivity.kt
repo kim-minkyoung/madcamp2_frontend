@@ -1,11 +1,8 @@
 package com.example.madcamp2_frontend.view.activity
 
-import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,8 +10,6 @@ import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
@@ -35,26 +30,27 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     private var userInfo: UserInfo? = null
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
+    private var hasUpdated = false
 
-//    private val profileImages = listOf(
-//        R.drawable.bear,
-//        R.drawable.cat,
-//        R.drawable.cow,
-//        R.drawable.dog,
-//        R.drawable.fox,
-//        R.drawable.frog,
-//        R.drawable.hamster,
-//        R.drawable.koala,
-//        R.drawable.lion,
-//        R.drawable.monkey,
-//        R.drawable.mouse,
-//        R.drawable.octopus,
-//        R.drawable.panda,
-//        R.drawable.pig,
-//        R.drawable.polarbear,
-//        R.drawable.rabbit,
-//        R.drawable.tiger
-//    )
+    private val profileImages = listOf(
+        R.drawable.bear,
+        R.drawable.cat,
+        R.drawable.cow,
+        R.drawable.dog,
+        R.drawable.fox,
+        R.drawable.frog,
+        R.drawable.hamster,
+        R.drawable.koala,
+        R.drawable.lion,
+        R.drawable.monkey,
+        R.drawable.mouse,
+        R.drawable.octopus,
+        R.drawable.panda,
+        R.drawable.pig,
+        R.drawable.polarbear,
+        R.drawable.rabbit,
+        R.drawable.tiger
+    )
 
     private var currentImageIndex = 0
 
@@ -74,7 +70,10 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
                 if (fetchedUserInfo != null) {
                     userInfo = fetchedUserInfo
-                    updateUIWithUserInfo(fetchedUserInfo)
+                    if (!hasUpdated) {
+                        updateUIWithUserInfo(fetchedUserInfo)
+                        hasUpdated = true
+                    }
                 }
             })
         }
@@ -113,7 +112,8 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
         }
         addProfileInfo("Email", userInfo.email)
-        addProfileInfo("Score", userInfo.score.toString())
+        addProfileInfo("누적 점수", userInfo.totalScore.toString())
+        addProfileInfo("최근 점수", userInfo.score.toString())
     }
 
     private fun addProfileInfo(title: String, detail: String) {
@@ -124,14 +124,13 @@ class ProfileConfigurationActivity : AppCompatActivity() {
     }
 
     private fun changeProfileImage() {
-        return
-//        currentImageIndex = (currentImageIndex + 1) % profileImages.size
-//        val selectedImageResId = profileImages[currentImageIndex]
-//        binding.profileImageView.setImageResource(selectedImageResId)
-//
-//        val imageName = resources.getResourceEntryName(selectedImageResId)
-//        val updatedUserInfo = userInfo?.copy(profileImage = imageName, score = 0) ?: return
-//        userViewModel.updateUserInfo(updatedUserInfo)
+        currentImageIndex = (currentImageIndex + 1) % profileImages.size
+        val selectedImageResId = profileImages[currentImageIndex]
+        binding.profileImageView.setImageResource(selectedImageResId)
+
+        val imageName = resources.getResourceEntryName(selectedImageResId)
+        val updatedUserInfo = userInfo?.copy(profileImage = imageName, score = 0) ?: return
+        userViewModel.updateUserInfo(updatedUserInfo)
     }
 
     private fun updateNickname(newNickname: String) {

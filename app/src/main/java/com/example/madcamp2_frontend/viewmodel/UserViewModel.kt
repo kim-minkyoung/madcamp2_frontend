@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.madcamp2_frontend.model.network.ApiService
 import com.example.madcamp2_frontend.model.network.UserEmailRequest
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.model.network.UserEmailResponse
 import com.example.madcamp2_frontend.model.repository.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
@@ -41,17 +41,17 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun updateUserScore(userId: String, score: Int, playCount: Int) {
+        viewModelScope.launch {
+            userRepository.updateScoreInfo(userId, score, playCount)
+        }
+    }
+
     fun deleteUser(userId: String) {
         viewModelScope.launch {
             userRepository.deleteUser(userId)
         }
     }
-//
-//    fun deleteProfileImage(userId: String) {
-//        viewModelScope.launch {
-//            userRepository.deleteProfileImage(userId)
-//        }
-//    }
 
     fun postUserEmail(account: GoogleSignInAccount) {
         val email = account.email ?: return
@@ -59,35 +59,29 @@ class UserViewModel : ViewModel() {
         val request = UserEmailRequest(email, nickname)
 
         viewModelScope.launch(Dispatchers.IO) {
-            apiService.postUserEmail(request).enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+            apiService.postUserEmail(request).enqueue(object : Callback<UserEmailResponse> {
+                override fun onResponse(call: Call<UserEmailResponse>, response: Response<UserEmailResponse>) {
                     if (response.isSuccessful) {
                         Log.d("postUserEmail", "User email posted successfully")
-                        response.body()?.string()?.let {
-                            val jsonObject = JSONObject(it)
-                            val isExistingUser = jsonObject.optBoolean("isExistingUser", false)
-                            val userObject = jsonObject.optJSONObject("user")
-                            if (userObject != null) {
-                                val userid = userObject.optString("_id", "")
-                                val userNickname = userObject.optString("nickname", nickname)
-                                val userEmail = userObject.optString("email", email)
-                                Log.d("postUserEmail", "User ID: $userid")
-                                userRepository.setUserInfo(UserInfo(userid, userEmail, userNickname, "monkey", 0, 0,0))
-                            } else {
-                                Log.e("postUserEmail", "User object is null")
-                            }
+                        val userEmailResponse = response.body()
+                        if (userEmailResponse != null) {
+                            val isExistingUser = userEmailResponse.isExistingUser
+                            val user = userEmailResponse.user
+                            Log.d("postUserEmail", "User ID: ${user.userid}")
+                            userRepository.setUserInfo(user)
+                        } else {
+                            Log.e("postUserEmail", "User object is null")
                         }
                     } else {
                         Log.e("UserViewModel", "Failed to check email, response code: ${response.code()}")
                     }
                 }
 
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                override fun onFailure(call: Call<UserEmailResponse>, t: Throwable) {
                     Log.e("postUserEmail", "Failed to post user email, error: ${t.message}")
                     _error.postValue("Failed to post user email, error: ${t.message}")
                 }
             })
         }
     }
-
 }

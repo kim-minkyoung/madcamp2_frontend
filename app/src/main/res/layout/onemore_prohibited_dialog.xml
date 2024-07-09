@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="30dp"
+    android:background="@drawable/pink_gradient">
+
+    <TextView
+        android:id="@+id/dialogTitleView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="24sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="이미 2번의 기회를 다 썼어요ㅠㅠ 😢" />
+
+    <TextView
+        android:id="@+id/explanationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="다음 정각부터 새로운 단어로\n플레이할 수 있어요." />
+
+    <TextView
+        android:id="@+id/detailedExplanationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="이따 만나요!" />
+
+    <Button
+        android:id="@+id/PositiveButton"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:text="아까비"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" />
+
+</LinearLayout>
