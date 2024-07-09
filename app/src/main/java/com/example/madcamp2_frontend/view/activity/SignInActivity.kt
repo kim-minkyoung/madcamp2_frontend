@@ -19,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.tasks.Task
 
 class SignInActivity : AppCompatActivity() {
@@ -49,6 +50,7 @@ class SignInActivity : AppCompatActivity() {
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
+            .requestProfile() // Add if you need profile information
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -80,21 +82,25 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         try {
-            val account = completedTask.getResult(ApiException::class.java)
+            val account = task.getResult(ApiException::class.java)
             Log.d(TAG, "handleSignInResult: success, account: ${account?.email}")
-            if (account != null) {
-                userViewModel.postUserEmail(account)
-                userViewModel.userInfo.observe(this, Observer { userInfo ->
-                    if (userInfo != null) {
-                        saveUserId(userInfo.userid)
-                    }
-                    updateUI(account)
-                })
-            }
+            userViewModel.postUserEmail(account)
+            userViewModel.userInfo.observe(this, Observer { userInfo ->
+                if (userInfo != null) {
+                    saveUserId(userInfo.userid)
+                }
+                updateUI(account)
+            })
         } catch (e: ApiException) {
             Log.w(TAG, "handleSignInResult: failed code=" + e.statusCode)
+            when (e.statusCode) {
+                CommonStatusCodes.NETWORK_ERROR -> Log.e(TAG, "Network error, please try again.")
+                CommonStatusCodes.INVALID_ACCOUNT -> Log.e(TAG, "Invalid account, please check your credentials.")
+                CommonStatusCodes.SIGN_IN_REQUIRED -> Log.e(TAG, "Sign-in required, please try again.")
+                else -> Log.e(TAG, "Sign-In Failed: ${e.statusCode}")
+            }
             Toast.makeText(this, "Sign-In Failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
         }
     }
