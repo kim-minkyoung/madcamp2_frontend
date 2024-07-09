@@ -13,21 +13,17 @@ import com.example.madcamp2_frontend.model.repository.UserRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class UserViewModel : ViewModel() {
-
     private val apiService = ApiService.create()
     private val userRepository = UserRepository(apiService)
 
     val userInfo: LiveData<UserInfo?> = userRepository.userInfo
 
     private val _error = MutableLiveData<String>()
-    val error: LiveData<String> get() = _error
 
     fun getUserInfo(userId: String) {
         viewModelScope.launch {

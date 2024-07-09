@@ -113,7 +113,7 @@ class UserRepository(private val apiService: ApiService) {
         })
     }
 
-    fun fetchUserRankings() {
+    fun fetchUserRecentRankings() {
         apiService.getScores().enqueue(object : Callback<List<UserInfo>> {
             override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
                 if (response.isSuccessful) {

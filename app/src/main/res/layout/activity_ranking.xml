@@ -28,15 +28,20 @@
         android:textStyle="bold"
         android:fontFamily="@font/bazzi"
         android:background="@drawable/rounded_rectangle"
-         />
+        />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rankingRecyclerView"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/leaderboardLabel"
-        android:layout_above="@+id/myRankContainer"
-        android:padding="16dp"/>
+        android:layout_below="@id/leaderboardLabel" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tabs"
+        android:layout_above="@id/myRankContainer" />
 
     <LinearLayout
         android:id="@+id/myRankContainer"
@@ -45,7 +50,7 @@
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:padding="25dp"
-        android:background="@drawable/pink_gradient" >
+        android:background="@drawable/pink_gradient">
 
         <TextView
             android:id="@+id/myRankPosition"

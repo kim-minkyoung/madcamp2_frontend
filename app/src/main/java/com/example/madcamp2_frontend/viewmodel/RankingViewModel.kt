@@ -1,28 +1,58 @@
 package com.example.madcamp2_frontend.viewmodel
 
-import androidx.lifecycle.*
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.madcamp2_frontend.model.network.ApiService
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.model.repository.UserRepository
 import kotlinx.coroutines.launch
 
-class RankingViewModel(private val userRepository: UserRepository) : ViewModel() {
+class RankingViewModel : ViewModel() {
+    private val apiService = ApiService.create()
+    private val userRepository = UserRepository(apiService)
 
-    val userRankings: LiveData<List<UserInfo>> = userRepository.userRankings
+    private val _userRecentRankings = MutableLiveData<List<UserInfo>>()
+    val userRecentRankings: LiveData<List<UserInfo>> get() = _userRecentRankings
 
-    fun fetchUserRankings() {
+    private val _userTotalRankings = MutableLiveData<List<UserInfo>>()
+    val userTotalRankings: LiveData<List<UserInfo>> get() = _userTotalRankings
+
+    fun fetchUserRecentRankings() {
         viewModelScope.launch {
-            userRepository.fetchUserRankings()
+            try {
+                userRepository.fetchUserRecentRankings()
+                userRepository.userRankings.observeForever { rankings ->
+                    if (rankings != null) {
+                        Log.d("RankingViewModel", "Fetched user recent rankings: $rankings")
+                        _userRecentRankings.postValue(rankings)
+                    } else {
+                        Log.e("RankingViewModel", "User recent rankings are null")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("RankingViewModel", "Error fetching user recent rankings", e)
+            }
         }
     }
-}
 
-class RankingViewModelFactory(private val userRepository: UserRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(RankingViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return RankingViewModel(userRepository) as T
+    fun fetchUserTotalRankings() {
+        viewModelScope.launch {
+            try {
+                userRepository.fetchUserTotalRankings()
+                userRepository.userTotalRankings.observeForever { totalRankings ->
+                    if (totalRankings != null) {
+                        Log.d("RankingViewModel", "Fetched user total rankings: $totalRankings")
+                        _userTotalRankings.postValue(totalRankings)
+                    } else {
+                        Log.e("RankingViewModel", "User total rankings are null")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("RankingViewModel", "Error fetching user total rankings", e)
+            }
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

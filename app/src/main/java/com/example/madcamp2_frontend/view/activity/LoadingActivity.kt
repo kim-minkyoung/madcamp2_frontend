@@ -16,8 +16,6 @@ import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.view.utils.GeminiApi
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream

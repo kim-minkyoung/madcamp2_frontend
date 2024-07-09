@@ -86,13 +86,16 @@ class ResultActivity : AppCompatActivity() {
             userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
                 if (fetchedUserInfo != null) {
                     userInfo = fetchedUserInfo
+                    setupClickListeners(score)
                 } else {
                     Log.d(TAG, "User info is null")
                 }
             })
         }
+    }
 
-        // Set up button click listeners
+    private fun setupClickListeners(score: Int) {
+        Log.d("ResultActivity", "Set up click listeners for buttons with score $score")
         binding.scoreHelpButton.setOnClickListener {
             val view = binding.scoreExplanationTextView
             view.visibility = if (view.visibility == View.VISIBLE) {
@@ -103,15 +106,10 @@ class ResultActivity : AppCompatActivity() {
         }
 
         binding.oneMoreButton.setOnClickListener {
-            if (userInfo != null) {
-                if (userInfo!!.playCount!! <= 1) {
-                    userInfo!!.playCount?.let { it1 ->
-                        userViewModel.updateUserScore(
-                            userInfo!!.userid, score,
-                            it1.plus(1)
-                        )
-                    }
-                    showOnemoreDialog()
+            userInfo?.let {
+                Log.d("ResultActivity", userInfo.toString())
+                if (it.playCount!! < 1) {
+                    showOnemoreDialog(score)
                 } else {
                     showOnemoreProhibitedDialog()
                 }
@@ -119,23 +117,24 @@ class ResultActivity : AppCompatActivity() {
         }
 
         binding.backToMainButton.setOnClickListener {
-            if (userInfo != null) {
-                userViewModel.updateUserScore(userInfo!!.userid, score, 2)
+            userInfo?.let {
+                userViewModel.updateUserScore(it.userid, score, 2)
             }
             finish()
         }
 
         binding.checkRankingButton.setOnClickListener {
-            if (userInfo != null) {
-                userViewModel.updateUserScore(userInfo!!.userid, score, 2)
+            userInfo?.let {
+                userViewModel.updateUserScore(it.userid, score, 2)
                 val intent = Intent(this, RankingActivity::class.java)
-                intent.putExtra("userid", userInfo?.userid)
+                intent.putExtra("userid", it.userid)
                 startActivity(intent)
+                finish()
             }
         }
     }
 
-    private fun showOnemoreDialog() {
+    private fun showOnemoreDialog(score: Int) {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         val dialogBinding = OnemoreDialogBinding.inflate(LayoutInflater.from(this))
@@ -143,6 +142,11 @@ class ResultActivity : AppCompatActivity() {
 
         dialogBinding.PositiveButton.setOnClickListener {
             dialog.dismiss()
+            userInfo?.let {
+                it.playCount?.let { playCount ->
+                    userViewModel.updateUserScore(it.userid, score, playCount + 1)
+                }
+            }
             showRewardedAd()
         }
         dialogBinding.NegativeButton.setOnClickListener {

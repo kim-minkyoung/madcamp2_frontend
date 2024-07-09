@@ -4,6 +4,7 @@ bsonKotlinx = "5.1.1"
 circleimageview = "3.1.0"
 converterGson = "2.11.0"
 converterScalars = "2.9.0"
+fragmentKtx = "1.8.1"
 generativeaiClient = "1.0.0"
 glide = "4.12.0"
 gson = "2.11.0"
@@ -35,6 +36,8 @@ playServicesAdsLite = "23.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
 bson-kotlinx = { module = "org.mongodb:bson-kotlinx", version.ref = "bsonKotlinx" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
