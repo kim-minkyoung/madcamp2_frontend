@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
-import androidx.annotation.NonNull
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
@@ -20,17 +20,13 @@ class ResultActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels()
 
     private var userInfo: UserInfo? = null
+    private var updateCalled = false // Flag to track if the update has been made
 
     @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        userInfo = when {
-            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
-            else -> intent.getParcelableExtra<UserInfo>("userInfo")
-        }
 
         // Get data from intent
         val bitmapFileUriString = intent.getStringExtra("bitmapFileUri")
@@ -60,24 +56,45 @@ class ResultActivity : AppCompatActivity() {
         binding.fourthPredictionTextView.text = String.format("4등은 %s (%.1f%%)", fourthPrediction, fourthPredictionPercentage * 100)
         binding.scoreTextView.text = String.format("점수: %d", score)
 
-        binding.oneMoreButton.setOnClickListener {
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("광고를 보고 한 판 더 할 기회를 얻으세요!")
-            builder.setMessage("광고를 보면 다음 정각이 되기 전가지 딱 한 판 더 할 수 있어요.\n단, 최고 점수를 선택할 수는 없어요.\n상남자 상여자는 무조건 마지막 점수로!")
-            builder.setPositiveButton("오케이") { dialog, _ ->
-                dialog.dismiss()
-            }
-            builder.create().show()
+        val userid = intent.getStringExtra("userid")
+        if (userid != null) {
+            userViewModel.getUserInfo(userid)
+            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
+                if (fetchedUserInfo != null) {
+                    userInfo = fetchedUserInfo
+                    if (!updateCalled) {
+                        updateCalled = true // Set the flag to true to prevent multiple updates
+                        if (fetchedUserInfo.score != null) {
+                            val updatedScore = score
+                            userViewModel.updateUserInfo(fetchedUserInfo.copy(score = score))
+                            Log.d("ResultActivity", "User score updated: $updatedScore")
+                        } else {
+                            Log.d("ResultActivity", "User score is null")
+                        }
+                    }
+                } else {
+                    Log.d("ResultActivity", "User info is null")
+                }
+            })
         }
 
         // Set up button click listeners
+        binding.scoreHelpButton.setOnClickListener {
+            val view = binding.scoreExplanationTextView
+            view.visibility = if (view.visibility == View.VISIBLE){
+                View.INVISIBLE
+            } else{
+                View.VISIBLE
+            }
+        }
+
         binding.backToMainButton.setOnClickListener {
             finish()
         }
 
         binding.checkRankingButton.setOnClickListener {
-            intent = Intent(this, RankingActivity::class.java)
-            intent.putExtra("userInfo", userInfo)
+            val intent = Intent(this, RankingActivity::class.java)
+            intent.putExtra("userid", userInfo?.userid)
             startActivity(intent)
         }
     }

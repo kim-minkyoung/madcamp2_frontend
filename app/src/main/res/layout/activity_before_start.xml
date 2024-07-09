@@ -16,17 +16,18 @@
 
     <TextView
         android:id="@+id/randomWordTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:textSize="28sp"
         android:padding="15sp"
         android:fontFamily="@font/bazzi"
+        android:gravity="center"
         android:layout_centerInParent="true"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="당신에게 주어진 시간은 단 20초!"
+        android:text="당신에게 주어진 시간은 단 5초!"
         android:textSize="20sp"
         android:padding="10sp"
         android:fontFamily="@font/bazzi"

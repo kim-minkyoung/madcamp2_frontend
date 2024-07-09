@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.madcamp2_frontend.model.network.ApiService
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.model.network.UserRanking
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,6 +15,9 @@ class UserRepository(private val apiService: ApiService) {
 
     private val _userInfo = MutableLiveData<UserInfo?>()
     val userInfo: LiveData<UserInfo?> get() = _userInfo
+
+    private val _userRankings = MutableLiveData<List<UserRanking>>()
+    val userRankings: LiveData<List<UserRanking>> get() = _userRankings
 
     fun getUserInfo(userId: String) {
         apiService.getUserInfo(userId).enqueue(object : Callback<UserInfo> {
@@ -82,5 +86,22 @@ class UserRepository(private val apiService: ApiService) {
 
     fun setUserInfo(userInfo: UserInfo) {
         updateUserInfo(userInfo)
+    }
+
+    fun fetchUserRankings() {
+        apiService.getAllUsers().enqueue(object : Callback<List<UserRanking>> {
+            override fun onResponse(call: Call<List<UserRanking>>, response: Response<List<UserRanking>>) {
+                if (response.isSuccessful) {
+                    _userRankings.postValue(response.body())
+                } else {
+                    Log.e("UserRepository", "Failed to fetch user rankings: ${response.errorBody()}")
+                    _userRankings.postValue(emptyList())
+                }
+            }
+
+            override fun onFailure(call: Call<List<UserRanking>>, t: Throwable) {
+                Log.e("UserRepository", "Failed to fetch user rankings: ${t.message}")
+            }
+        })
     }
 }

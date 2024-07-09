@@ -1,5 +1,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -8,96 +9,110 @@
         android:id="@+id/drawingImageView"
         android:layout_width="0dp"
         android:layout_height="300dp"
-        android:scaleType="fitCenter"
         android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@id/bestPredictionTextView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bestPredictionTextView" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/bestPredictionTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/bazzi"
         android:text="Best Prediction: "
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/drawingImageView"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/drawingImageView" />
 
     <TextView
         android:id="@+id/bestPredictionPercentageTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
         android:fontFamily="@font/bazzi"
         android:text="Matching Percentage: "
-        app:layout_constraintTop_toBottomOf="@id/bestPredictionTextView"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/bestPredictionTextView" />
 
     <TextView
         android:id="@+id/secondPredictionTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:fontFamily="@font/bazzi"
         android:layout_marginTop="8dp"
+        android:fontFamily="@font/bazzi"
         android:text="2nd Prediction: "
-        app:layout_constraintTop_toBottomOf="@id/bestPredictionPercentageTextView"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/bestPredictionPercentageTextView" />
 
     <TextView
         android:id="@+id/thirdPredictionTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
         android:fontFamily="@font/bazzi"
         android:text="3rd Prediction: "
-        app:layout_constraintTop_toBottomOf="@id/secondPredictionTextView"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/secondPredictionTextView" />
 
     <TextView
         android:id="@+id/fourthPredictionTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
         android:fontFamily="@font/bazzi"
         android:text="4th Prediction: "
-        app:layout_constraintTop_toBottomOf="@id/thirdPredictionTextView"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/thirdPredictionTextView" />
+
+    <TextView
+        android:id="@+id/scoreExplanationTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/bazzi"
+        android:gravity="right"
+        android:text="점수 산출 기준: 100 * 일치율 * (1 - 0.1 * 그림 그린 시간) / 5000"
+        android:textSize="10sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/scoreTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fourthPredictionTextView"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/scoreTextView"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30sp"
+        android:layout_gravity="end"
         android:fontFamily="@font/bazzi"
+        android:gravity="end"
         android:text="Score: "
-        android:gravity="right"
-        app:layout_constraintTop_toBottomOf="@id/fourthPredictionTextView"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@id/oneMoreButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/backToMainButton" />
+        app:layout_constraintTop_toBottomOf="@id/fourthPredictionTextView"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-    <TextView
-        android:layout_width="0dp"
+    <ImageView
+        android:id="@+id/scoreHelpButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/bazzi"
-        android:gravity="right"
-        android:text="점수 산출 기준: 100 * 일치율 * (1 - 0.1f * 그림 그린 시간) / 5000"
-        android:textSize="10sp"
-        app:layout_constraintBottom_toTopOf="@id/backToMainButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fourthPredictionTextView"
-        app:layout_constraintVertical_bias="0.658" />
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/baseline_help_24"
+        app:layout_constraintBottom_toBottomOf="@id/scoreTextView"
+        app:layout_constraintEnd_toStartOf="@id/scoreTextView"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="@id/scoreTextView" />
 
     <Button
         android:id="@+id/oneMoreButton"
@@ -123,25 +138,25 @@
         android:id="@+id/backToMainButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/bazzi"
         android:text="메인 화면으로"
         android:textSize="22sp"
-        android:fontFamily="@font/bazzi"
-        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/checkRankingButton" />
+        app:layout_constraintEnd_toStartOf="@id/checkRankingButton"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/checkRankingButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/bazzi"
         android:text="순위 확인하기"
         android:textSize="22sp"
-        android:fontFamily="@font/bazzi"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/backToMainButton"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/backToMainButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
