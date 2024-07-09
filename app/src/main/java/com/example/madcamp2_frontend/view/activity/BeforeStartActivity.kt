@@ -1,34 +1,42 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.content.Intent
-import android.os.Build.VERSION.SDK_INT
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityBeforeStartBinding
 import com.example.madcamp2_frontend.model.network.ApiService
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.activity.viewModels
 
 class BeforeStartActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBeforeStartBinding
     private var randomWord: String = "Loading..."
     private var userInfo: UserInfo? = null
+    private val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBeforeStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userInfo = when {
-            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
-            else -> intent.getParcelableExtra<UserInfo>("userInfo")
+        val userid = intent.getStringExtra("userid")
+        if (userid != null) {
+            userViewModel.getUserInfo(userid)
+            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
+                if (fetchedUserInfo != null) {
+                    userInfo = fetchedUserInfo
+                }
+            })
         }
 
         // Display initial value

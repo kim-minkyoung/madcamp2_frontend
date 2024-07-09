@@ -8,10 +8,13 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.view.utils.GeminiApi
+import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
@@ -27,6 +30,7 @@ class LoadingActivity : AppCompatActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
     private val geminiApi = GeminiApi()
     private var remainingMilliSeconds: Long = 0
+    private var userViewModel: UserViewModel by viewModels()
 
     private var userInfo: UserInfo? = null
 
@@ -34,7 +38,15 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_loading)
 
-        userInfo = intent.getParcelableExtra<UserInfo>("userInfo")
+        val userid = intent.getStringExtra("userid")
+        if (userid != null) {
+            userViewModel.getUserInfo(userid)
+            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
+                if (fetchedUserInfo != null) {
+                    userInfo = fetchedUserInfo
+                }
+            })
+        }
 
         progressBar = findViewById(R.id.loadingProgressBar)
 

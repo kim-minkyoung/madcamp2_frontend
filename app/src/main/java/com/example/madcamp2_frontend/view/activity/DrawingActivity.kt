@@ -4,18 +4,19 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.*
 import android.net.Uri
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityDrawingBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -40,6 +41,7 @@ class DrawingActivity : AppCompatActivity() {
     private val path: Path = Path()
     private var remainingMilliSeconds: Long = 5000
     private var userInfo: UserInfo? = null
+    private val userViewModel: UserViewModel by viewModels()
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
 
@@ -48,10 +50,16 @@ class DrawingActivity : AppCompatActivity() {
         binding = ActivityDrawingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userInfo = when {
-            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
-            else -> intent.getParcelableExtra<UserInfo>("userInfo")
+        val userid = intent.getStringExtra("userid")
+        if (userid != null) {
+            userViewModel.getUserInfo(userid)
+            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
+                if (fetchedUserInfo != null) {
+                    userInfo = fetchedUserInfo
+                }
+            })
         }
+
         currentWord = intent.getStringExtra("random_word") ?: ""
 
         binding.wordTextView.text = currentWord

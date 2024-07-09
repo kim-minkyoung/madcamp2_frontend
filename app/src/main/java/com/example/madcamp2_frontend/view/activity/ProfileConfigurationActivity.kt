@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
@@ -25,6 +24,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.databinding.ActivityProfileConfigurationBinding
@@ -78,20 +78,15 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
         Log.d("ProfileConfigurationActivity", "Page Created")
 
-        userInfo = when {
-            SDK_INT >= 33 -> intent.getParcelableExtra("userInfo", UserInfo::class.java)
-            else -> intent.getParcelableExtra<UserInfo>("userInfo")
-        }
-
-        Log.d("ProfileConfigurationActivity", "user Info is $userInfo")
-        userInfo?.let {
-            binding.nicknameLabel.text = it.nickname
-            if (it.profileImage != null && it.profileImage != "") {
-                Glide.with(this).load(it.profileImage).into(binding.profileImageView)
-            } else {
-                Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
-            }
-            addProfileInfo("Email", it.email)
+        val userid = intent.getStringExtra("userid")
+        if (userid != null) {
+            userViewModel.getUserInfo(userid)
+            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
+                if (fetchedUserInfo != null) {
+                    userInfo = fetchedUserInfo
+                    updateUIWithUserInfo(fetchedUserInfo)
+                }
+            })
         }
 
         binding.profileImageView.setOnClickListener {
@@ -109,6 +104,21 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         binding.deleteAccountButton.setOnClickListener {
             showDeleteAccountDialog()
         }
+    }
+
+    private fun updateUIWithUserInfo(userInfo: UserInfo?) {
+        if (userInfo == null) {
+            Log.e("ProfileConfigurationActivity", "User info is null")
+            return
+        }
+        binding.nicknameLabel.text = userInfo.nickname
+        if (userInfo.profileImage != null && userInfo.profileImage.isNotEmpty()) {
+            Glide.with(this).load(userInfo.profileImage).into(binding.profileImageView)
+        } else {
+            Glide.with(this).load(R.drawable.default_profile_light).into(binding.profileImageView)
+        }
+        addProfileInfo("Email", userInfo.email)
+        addProfileInfo("Score", userInfo.score.toString())
     }
 
     private fun allPermissionsGranted(): Boolean {
@@ -258,7 +268,7 @@ class ProfileConfigurationActivity : AppCompatActivity() {
             .show()
     }
 
-    fun deleteAccount() {
+    private fun deleteAccount() {
         val userId = userInfo?.userid ?: return
         userViewModel.deleteUser(userId)
 
