@@ -20,6 +20,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import androidx.activity.viewModels
 import com.example.madcamp2_frontend.databinding.OnemoreProhibitedDialogBinding
+import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
 
 class BeforeStartActivity : AppCompatActivity() {
 
@@ -27,27 +28,15 @@ class BeforeStartActivity : AppCompatActivity() {
     private var randomWord: String = "Loading..."
     private var userInfo: UserInfo? = null
     private val userViewModel: UserViewModel by viewModels()
+    private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBeforeStartBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val userid = intent.getStringExtra("userid")
-        if (userid != null) {
-            userViewModel.getUserInfo(userid)
-            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
-                if (fetchedUserInfo != null) {
-                    userInfo = fetchedUserInfo
-                    if (userInfo!!.playCount!! > 1) {
-                        showOnemoreProhibitedDialog()
-                    }
-                }
-            })
-        }
-
-        /* TODO: SharedPreferences에서 current word 받아서 비교
-        *   playcount가 2고 단어가 같으면 block */
+        sharedPreferencesHelper = SharedPreferencesHelper(this)
+        val currentWord = sharedPreferencesHelper.getCurrentWord()
 
         // Display initial value
         binding.randomWordTextView.text = randomWord
@@ -58,6 +47,29 @@ class BeforeStartActivity : AppCompatActivity() {
             randomWord = jsonObject.optString("word", "error")
             // Update TextView once the random word is received
             binding.randomWordTextView.text = randomWord
+        }
+
+        val userid = intent.getStringExtra("userid")
+        if (userid != null) {
+            userViewModel.getUserInfo(userid)
+            userViewModel.userInfo.observe(this) { fetchedUserInfo ->
+                if (fetchedUserInfo != null && fetchedUserInfo.userid != null) {
+                    userInfo = fetchedUserInfo
+                    Log.d("BeforeStartActivity", "Fetched user info: $fetchedUserInfo")
+
+                    if (userInfo!!.playCount!! > 1) {
+                        if (currentWord == randomWord) {
+                            showOnemoreProhibitedDialog()
+                        } else {
+                            userViewModel.updateUserScore(userInfo!!.userid, 0, 0)
+                        }
+                    }
+                } else {
+                    Log.d("BeforeStartActivity", "User info is null")
+                }
+            }
+        } else {
+            Log.e("BeforeStartActivity", "User ID is null")
         }
 
         // Start button click listener

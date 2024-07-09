@@ -11,8 +11,7 @@
         android:text="다음을 그리세요:"
         android:textSize="24sp"
         android:fontFamily="@font/bazzi"
-        android:padding="10sp"
-        android:layout_centerInParent="true"/>
+        android:padding="10sp" />
 
     <TextView
         android:id="@+id/randomWordTextView"
@@ -21,8 +20,7 @@
         android:textSize="28sp"
         android:padding="15sp"
         android:fontFamily="@font/bazzi"
-        android:gravity="center"
-        android:layout_centerInParent="true"/>
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,8 +28,7 @@
         android:text="당신에게 주어진 시간은 단 5초!"
         android:textSize="20sp"
         android:padding="10sp"
-        android:fontFamily="@font/bazzi"
-        android:layout_centerInParent="true"/>
+        android:fontFamily="@font/bazzi" />
 
     <Button
         android:id="@+id/startButton"
@@ -42,9 +39,9 @@
         android:textColor="@color/black"
         android:fontFamily="@font/bazzi"
         android:background="@drawable/rounded_rectangle"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp"
+        android:layout_marginHorizontal="16dp"/>
 
 </LinearLayout>

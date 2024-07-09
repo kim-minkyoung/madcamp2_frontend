@@ -10,7 +10,6 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.view.utils.GeminiApi
@@ -29,6 +28,7 @@ class LoadingActivity : AppCompatActivity() {
     private val geminiApi = GeminiApi()
     private var remainingMilliSeconds: Long = 0
     private val userViewModel: UserViewModel by viewModels()
+    private var targetWord: String = ""
 
     private var userInfo: UserInfo? = null
 
@@ -39,14 +39,15 @@ class LoadingActivity : AppCompatActivity() {
         val userid = intent.getStringExtra("userid")
         if (userid != null) {
             userViewModel.getUserInfo(userid)
-            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
+            userViewModel.userInfo.observe(this) { fetchedUserInfo ->
                 if (fetchedUserInfo != null) {
                     userInfo = fetchedUserInfo
                 }
-            })
+            }
         }
 
         progressBar = findViewById(R.id.loadingProgressBar)
+        targetWord = intent.getStringExtra("target_word").toString()
 
         // Get data from intent
         bitmapFileUriString = intent.getStringExtra("bitmapFileUri") ?: ""
@@ -79,7 +80,7 @@ class LoadingActivity : AppCompatActivity() {
             val wordList = getWordListFromJson()
             try {
                 var responseText: String? = null
-                var jsonResponse: JSONArray? = null
+                var jsonResponse: JSONArray?
                 while (predictions.size < 4) {
                     try {
                         geminiApi.generateContent(
@@ -180,14 +181,14 @@ class LoadingActivity : AppCompatActivity() {
             putExtra("fourthPrediction", fourthPrediction.first)
             putExtra("fourthPredictionPercentage", fourthPrediction.second)
             putExtra("score", score)
+            putExtra("currentWord", targetWord)
         }
         startActivity(intent)
         finish()
     }
 
     private fun calculateScoreIfMatches(predictions: List<Pair<String, Float>>): Int {
-        val targetWord = intent.getStringExtra("target_word")?.trim() ?: ""
-        val match = predictions.find { it.first.trim().equals(targetWord, ignoreCase = true) }
+        val match = predictions.find { it.first.trim().equals(targetWord.trim(), ignoreCase = true) }
         return if (match != null) {
             val matchingConfidence = match.second
             (100 * matchingConfidence * (1 - 0.1f * (5000 - remainingMilliSeconds) / 5000)).toInt()

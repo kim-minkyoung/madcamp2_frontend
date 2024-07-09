@@ -1,7 +1,6 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -16,12 +15,12 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityResultBinding
 import com.example.madcamp2_frontend.databinding.OnemoreDialogBinding
 import com.example.madcamp2_frontend.databinding.OnemoreProhibitedDialogBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.view.utils.Constants
+import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -35,9 +34,9 @@ class ResultActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResultBinding
     private val userViewModel: UserViewModel by viewModels()
+    private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
     private var userInfo: UserInfo? = null
-    private var updateCalled = false // Flag to track if the update has been made
 
     private var rewardedAd: RewardedAd? = null
     private val TAG = "ResultActivity"
@@ -47,6 +46,8 @@ class ResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        sharedPreferencesHelper = SharedPreferencesHelper(this)
 
         // Initialize Mobile Ads SDK
         MobileAds.initialize(this) {}
@@ -59,8 +60,6 @@ class ResultActivity : AppCompatActivity() {
         val bitmapFileUri = Uri.parse(bitmapFileUriString)
         val inputStream = contentResolver.openInputStream(bitmapFileUri!!)
         val drawingBitmap = BitmapFactory.decodeStream(inputStream)
-
-        // TODO: SharedPrefences로 current word 저장하기
 
         // Display the drawing
         binding.drawingImageView.setImageBitmap(drawingBitmap)
@@ -75,6 +74,11 @@ class ResultActivity : AppCompatActivity() {
         val fourthPrediction = intent.getStringExtra("fourthPrediction")
         val fourthPredictionPercentage = intent.getFloatExtra("fourthPredictionPercentage", 0f)
         val score = intent.getIntExtra("score", 0)
+        val currentWord = intent.getStringExtra("currentWord")
+
+        if (currentWord != null) {
+            sharedPreferencesHelper.saveCurrentWord(currentWord)
+        }
 
         // Bind predictions to text views
         binding.bestPredictionTextView.text = "이 그림은 아마도 $bestPrediction"
@@ -87,14 +91,14 @@ class ResultActivity : AppCompatActivity() {
         val userid = intent.getStringExtra("userid")
         if (userid != null) {
             userViewModel.getUserInfo(userid)
-            userViewModel.userInfo.observe(this, Observer { fetchedUserInfo ->
-                if (fetchedUserInfo != null) {
+            userViewModel.userInfo.observe(this) { fetchedUserInfo ->
+                if (fetchedUserInfo != null && fetchedUserInfo.userid != null) {
                     userInfo = fetchedUserInfo
                     setupClickListeners(score)
                 } else {
                     Log.d(TAG, "User info is null")
                 }
-            })
+            }
         }
     }
 
@@ -178,7 +182,6 @@ class ResultActivity : AppCompatActivity() {
         return (this * context.resources.displayMetrics.density).toInt()
     }
 
-
     private fun loadRewardedAd() {
         val adRequest = AdRequest.Builder().build()
 
@@ -218,9 +221,9 @@ class ResultActivity : AppCompatActivity() {
             ad.show(this) {
                 Log.d(TAG, "User earned the reward.")
                 val intent = Intent(this, BeforeStartActivity::class.java)
-                intent.putExtra("userInfo", userInfo)
-                finish()
+                intent.putExtra("userid", userInfo?.userid)  // Pass the user ID instead
                 startActivity(intent)
+                finish()
             }
         } ?: run {
             Log.d(TAG, "The rewarded ad wasn't ready yet.")
