@@ -1,6 +1,7 @@
 package com.example.madcamp2_frontend.view.utils
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.madcamp2_frontend.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerateContentResponse
@@ -10,43 +11,43 @@ import com.google.ai.client.generativeai.type.generationConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.collect
 import kotlin.io.encoding.ExperimentalEncodingApi
-import org.json.JSONArray
-import org.json.JSONObject
 
 class GeminiApi {
     private val apiKey = BuildConfig.API_KEY
 
     var generationConfig: GenerationConfig = generationConfig {
-        maxOutputTokens = 200
+        maxOutputTokens = 100
     }
 
     val generativeVisionModel = GenerativeModel(
-        modelName = "gemini-pro-vision",
+        modelName = "gemini-1.5-pro-latest",
         apiKey = apiKey,
         generationConfig = generationConfig
     )
 
     @OptIn(ExperimentalEncodingApi::class)
-    fun generateContent(prompt: String, imageData: Bitmap): Flow<GenerateContentResponse> {
+    fun generateContent(prompt: String, imageData: Bitmap): Flow<String> {
         val content = content {
             image(imageData)
             text(prompt)
         }
 
         return flow {
-            val response = generativeVisionModel.generateContentStream(content).firstOrNull()
-                ?: throw Exception("Empty response from Gemini")
+            val responseTextBuilder = StringBuilder()
 
-            val responseText = response.text ?: throw Exception("No text in response from Gemini")
-            val jsonResponse = try {
-                JSONArray(responseText)
-            } catch (e: Exception) {
-                throw Exception("Invalid JSON response: ${e.message}")
+            generativeVisionModel.generateContentStream(content).collect { response ->
+                response.text?.let { responseTextBuilder.append(it) }
             }
 
-            emit(response)
+            val responseText = responseTextBuilder.toString()
+            if (responseText.isEmpty()) {
+                throw Exception("Empty response from Gemini")
+            }
+            Log.d("GeminiApi", responseText)
+
+            emit(responseText)
         }.catch { e ->
             throw e
         }

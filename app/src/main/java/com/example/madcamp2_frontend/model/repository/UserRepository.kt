@@ -33,7 +33,6 @@ class UserRepository(private val apiService: ApiService) {
     }
 
     fun updateUserInfo(userInfo: UserInfo) {
-        Log.d("updateUserInfo", "UserRepository: 난 업데이트 함")
         apiService.updateUserInfo(userInfo.userid, userInfo).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {

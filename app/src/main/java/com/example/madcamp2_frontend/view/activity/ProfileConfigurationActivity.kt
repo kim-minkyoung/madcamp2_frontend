@@ -19,6 +19,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -212,7 +213,7 @@ class ProfileConfigurationActivity : AppCompatActivity() {
         Log.d("updateNickname", "Updating nickname to $newNickname")
         binding.nicknameLabel.text = newNickname
         val updatedUserInfo = userInfo?.copy(nickname = newNickname) ?: return
-        Log.d("updateUserInfo", "Activity: 난 업데이트 함")
+        Toast.makeText(applicationContext, "닉네임을 성공적으로 업데이트했습니다.", Toast.LENGTH_SHORT).show()
         userViewModel.updateUserInfo(updatedUserInfo)
     }
 

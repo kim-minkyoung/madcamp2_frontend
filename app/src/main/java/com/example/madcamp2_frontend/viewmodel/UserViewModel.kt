@@ -37,7 +37,6 @@ class UserViewModel : ViewModel() {
 
     fun updateUserInfo(userInfo: UserInfo) {
         viewModelScope.launch {
-            Log.d("updateUserInfo", "UserViewModel: 난 업데이트 함")
             userRepository.updateUserInfo(userInfo)
         }
     }

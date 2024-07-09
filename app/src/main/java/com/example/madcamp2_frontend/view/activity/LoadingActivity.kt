@@ -13,9 +13,9 @@ import com.example.madcamp2_frontend.R
 import com.example.madcamp2_frontend.model.network.UserInfo
 import com.example.madcamp2_frontend.view.utils.GeminiApi
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.io.InputStream
 
@@ -53,7 +53,16 @@ class LoadingActivity : AppCompatActivity() {
         return response.replace("\n", "").replace("\r", "").replace("\\s+".toRegex(), " ")
     }
 
-    // Enhanced processImage function
+    // Validate and parse JSON response
+    private fun parseAndValidateJson(response: String): JSONArray? {
+        return try {
+            JSONArray(response)
+        } catch (e: Exception) {
+            Log.e("parseAndValidateJson", "Error parsing JSON: ${e.message}")
+            null
+        }
+    }
+
     private fun processImage() {
         coroutineScope.launch {
             val predictions = mutableListOf<Pair<String, Float>>()
@@ -63,20 +72,24 @@ class LoadingActivity : AppCompatActivity() {
                 var jsonResponse: JSONArray? = null
                 while (predictions.size < 4) {
                     try {
-                        val response = geminiApi.generateContent(
-                            "Which of the 345 objects of 'quick, draw' dataset does this image look like? Give exactly four responses in the format of a JSON array, e.g., [\"사과(apple):0.9\", \"배(pear):0.8\"]. Word list: $wordList", drawingBitmap)
-                            .firstOrNull()
-
-                        responseText = response?.text
+                        geminiApi.generateContent(
+                            "YOU MUST GIVE YOUR RESPONSE IN JSON FORMAT.\n" +
+                                    "Which of the 345 objects of the wordlist does this image look like?\n" +
+                                    "Give exactly four responses in the format of a JSON array, e.g., [{\"사과(apple)\":0.9}, {\"배(pear)\":0.8}, {\"바나나(banana)\":0.7}, {\"오렌지(orange)\":0.2}]. Word list: $wordList",
+                            drawingBitmap
+                        ).collect { response ->
+                            responseText = response
+                        }
+                        Log.d("processImage", responseText!!)
                     } catch (e: Exception) {
                         Log.e("processImage", "Error during content generation: ${e.message}")
                         null
                     }
 
                     if (responseText != null) {
-                        Log.d("LoadingActivity", responseText)
-                        responseText = cleanUpResponse(responseText)
-                        jsonResponse = parseAndValidateJson(responseText)
+                        Log.d("LoadingActivity", responseText!!)
+                        responseText = cleanUpResponse(responseText!!)
+                        jsonResponse = parseAndValidateJson(responseText!!)
                         if (jsonResponse != null) {
                             predictions.clear()
                             predictions.addAll(parsePredictionsFromJson(jsonResponse))
@@ -110,17 +123,6 @@ class LoadingActivity : AppCompatActivity() {
         return predictions
     }
 
-    // Validate and parse JSON response
-    private fun parseAndValidateJson(response: String): JSONArray? {
-        return try {
-            JSONArray(response)
-        } catch (e: JSONException) {
-            Log.e("parseAndValidateJson", "Error parsing JSON: ${e.message}")
-            null
-        }
-    }
-
-    // Navigate to BeforeStartActivity
     private fun navigateToBeforeStartActivity() {
         val intent = Intent(this, BeforeStartActivity::class.java)
         intent.putExtra("userInfo", userInfo)
@@ -174,7 +176,7 @@ class LoadingActivity : AppCompatActivity() {
 
     private fun calculateScoreIfMatches(predictions: List<Pair<String, Float>>): Int {
         val targetWord = intent.getStringExtra("target_word")?.trim() ?: ""
-        val match = predictions.find { it.first.trim().contains(targetWord.split("(")[0].trim()) }
+        val match = predictions.find { it.first.trim().equals(targetWord, ignoreCase = true) }
         return if (match != null) {
             val matchingConfidence = match.second
             (100 * matchingConfidence * (1 - 0.1f * (5000 - remainingMilliSeconds) / 5000)).toInt()
