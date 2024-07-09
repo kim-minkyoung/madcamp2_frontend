@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:padding="25dp"
+        android:padding="8dp"
         android:background="@drawable/pink_gradient" >
 
         <TextView

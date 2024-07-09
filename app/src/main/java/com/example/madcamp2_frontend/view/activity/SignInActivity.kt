@@ -1,6 +1,7 @@
 // SignInActivity
 package com.example.madcamp2_frontend.view.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -116,7 +117,7 @@ class SignInActivity : AppCompatActivity() {
         if (account != null) {
             Log.d(TAG, "updateUI: Sign-In successful, navigating to MainActivity")
             val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            setResult(Activity.RESULT_OK, intent)
             finish()
         } else {
             Log.d(TAG, "updateUI: Sign-In failed, showing toast")
