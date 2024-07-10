@@ -52,9 +52,10 @@ const userSchema = new mongoose.Schema({
 
 ## 기능별 앱 소개
 
-|로그인 화면|플레이 팁|내 프로필 보기|게임 플레이|랭킹|
-|------------|----------|---------------|-----------|----|
-| ![KakaoTalk_20240710_183407177](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/88e1d159-38e8-4a4d-82d9-211166d6fade) | ![KakaoTalk_20240710_183407177_05](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/941a4fc6-ca40-4af9-ba78-ae704ab45e6d) | ![KakaoTalk_20240710_183407177_02](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/1b77dce2-5154-4a22-ad99-b34c3b1d8643) | ![KakaoTalk_20240710_183407177_04](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/30ecbfc2-066c-462d-a0c9-a4e50a3b2c2e) | ![KakaoTalk_20240710_183407177_01](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/c7433cd6-e1b9-4e06-bdb6-99e30470ffbf) |
+|로그인 화면|플레이 팁|내 프로필 보기|게임 플레이|랭킹|광고 표시|기회 소진 시|
+|------------|----------|---------------|-----------|----|----------|-------------|
+| ![KakaoTalk_20240710_183407177](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/88e1d159-38e8-4a4d-82d9-211166d6fade) | ![KakaoTalk_20240710_183407177_05](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/941a4fc6-ca40-4af9-ba78-ae704ab45e6d) | ![KakaoTalk_20240710_183407177_02](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/1b77dce2-5154-4a22-ad99-b34c3b1d8643) | ![KakaoTalk_20240710_183407177_04](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/30ecbfc2-066c-462d-a0c9-a4e50a3b2c2e) | ![KakaoTalk_20240710_183407177_01](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/c7433cd6-e1b9-4e06-bdb6-99e30470ffbf) | ![KakaoTalk_20240710_183407177_03](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/cd5b4e7d-29df-4bec-bb88-90ae0c965cb3) | ![KakaoTalk_20240710_183407177_06](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/d50147ec-162c-449d-b7a4-c0ddac2f4df6) |
+
 
 ### 🎨 로그인
 
