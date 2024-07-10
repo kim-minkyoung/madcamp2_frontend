@@ -83,6 +83,11 @@ class ResultActivity : AppCompatActivity() {
             userViewModel.userInfo.observe(this) { fetchedUserInfo ->
                 if (fetchedUserInfo != null && fetchedUserInfo.userid != null) {
                     userInfo = fetchedUserInfo
+                    userInfo?.let {
+                        it.playCount?.let { playCount ->
+                            userViewModel.updateUserScore(it.userid, score, playCount + 1)
+                        }
+                    }
                     setupClickListeners(score)
                 } else {
                     Log.d(TAG, "User info is null")
@@ -114,19 +119,11 @@ class ResultActivity : AppCompatActivity() {
         }
 
         binding.backToMainButton.setOnClickListener {
-            userInfo?.let {
-                it.playCount?.let { playCount ->
-                    userViewModel.updateUserScore(it.userid, score, playCount + 1)
-                }
-            }
             finish()
         }
 
         binding.checkRankingButton.setOnClickListener {
             userInfo?.let {
-                it.playCount?.let { playCount ->
-                    userViewModel.updateUserScore(it.userid, score, playCount + 1)
-                }
                 val intent = Intent(this, RankingActivity::class.java)
                 intent.putExtra("userid", it.userid)
                 startActivity(intent)
@@ -143,11 +140,6 @@ class ResultActivity : AppCompatActivity() {
 
         dialogBinding.PositiveButton.setOnClickListener {
             dialog.dismiss()
-            userInfo?.let {
-                it.playCount?.let { playCount ->
-                    userViewModel.updateUserScore(it.userid, score, playCount + 1)
-                }
-            }
             adHelper.showRewardedAd(onAdReward = {
                 Log.d(TAG, "User earned the reward.")
             }, onAdClosed = {

@@ -119,11 +119,6 @@ class BeforeStartActivity : AppCompatActivity() {
                 dialog.dismiss()
                 adHelper.showRewardedAd(onAdReward = {
                     Log.d("BeforeStartActivity", "User earned the reward.")
-                }, onAdClosed = {
-                    val intent = Intent(this, BeforeStartActivity::class.java)
-                    intent.putExtra("userid", userInfo?.userid)
-                    startActivity(intent)
-                    finish()
                 })
             } else {
                 Toast.makeText(this, "광고가 아직 준비되지 않았어요😢", Toast.LENGTH_SHORT).show()
@@ -135,6 +130,7 @@ class BeforeStartActivity : AppCompatActivity() {
 
         dialog.show()
     }
+
     private fun showOnemoreProhibitedDialog() {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
