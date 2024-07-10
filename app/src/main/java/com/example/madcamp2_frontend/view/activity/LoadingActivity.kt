@@ -87,7 +87,7 @@ class LoadingActivity : AppCompatActivity() {
                             "YOU MUST GIVE YOUR RESPONSE IN JSON FORMAT.\n" +
                                     "Which of the 345 objects of the wordlist does this image look like?\n" +
                                     "Give exactly four responses in the format of a JSON array, must contain both Korean and English!!" +
-                                    "e.g., [{\"사과(apple)\":0.9}, {\"배(pear)\":0.8}, {\"바나나(banana)\":0.7}, {\"오렌지(orange)\":0.2}]." +
+                                    "e.g., [{\"사과(apple)\":0.930}, {\"배(pear)\":0.872}, {\"바나나(banana)\":0.737}, {\"오렌지(orange)\":0.219}]." +
                                     "YOUR RESPONSE SHOULD BE ONE OF THE FOLLOWING WORD LIST: $wordList",
                             drawingBitmap
                         ).collect { response ->
