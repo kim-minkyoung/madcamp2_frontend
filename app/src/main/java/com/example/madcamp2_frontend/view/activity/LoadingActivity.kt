@@ -47,7 +47,7 @@ class LoadingActivity : AppCompatActivity() {
         }
 
         progressBar = findViewById(R.id.loadingProgressBar)
-        targetWord = intent.getStringExtra("target_word").toString()
+        targetWord = intent.getStringExtra("target_word").toString().trim().split('(')[0]
 
         // Get data from intent
         bitmapFileUriString = intent.getStringExtra("bitmapFileUri") ?: ""
@@ -86,7 +86,7 @@ class LoadingActivity : AppCompatActivity() {
                         geminiApi.generateContent(
                             "YOU MUST GIVE YOUR RESPONSE IN JSON FORMAT.\n" +
                                     "Which of the 345 objects of the wordlist does this image look like?\n" +
-                                    "Give exactly four responses in the format of a JSON array, must contain both Korean and English!!" +
+                                    "Give exactly four responses in the format of a JSON array, must contain both Korean and English words!!" +
                                     "e.g., [{\"사과(apple)\":0.930}, {\"배(pear)\":0.872}, {\"바나나(banana)\":0.737}, {\"오렌지(orange)\":0.219}]." +
                                     "YOUR RESPONSE SHOULD BE ONE OF THE FOLLOWING WORD LIST: $wordList",
                             drawingBitmap
@@ -188,7 +188,7 @@ class LoadingActivity : AppCompatActivity() {
     }
 
     private fun calculateScoreIfMatches(predictions: List<Pair<String, Float>>): Int {
-        val match = predictions.find { it.first.trim().equals(targetWord.trim(), ignoreCase = true) }
+        val match = predictions.find { it.first.trim().contains(targetWord, ignoreCase = true) }
         return if (match != null) {
             val matchingConfidence = match.second
             (100 * matchingConfidence * (1 - 0.1f * (5000 - remainingMilliSeconds) / 5000)).toInt()

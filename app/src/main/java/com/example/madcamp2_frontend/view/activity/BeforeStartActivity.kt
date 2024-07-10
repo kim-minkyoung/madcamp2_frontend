@@ -54,6 +54,7 @@ class BeforeStartActivity : AppCompatActivity() {
         }
 
         val userid = intent.getStringExtra("userid")
+        val adWatched = intent.getBooleanExtra("adWatched", false)
         if (userid != null) {
             userViewModel.getUserInfo(userid)
             userViewModel.userInfo.observe(this) { fetchedUserInfo ->
@@ -61,7 +62,7 @@ class BeforeStartActivity : AppCompatActivity() {
                     userInfo = fetchedUserInfo
                     if (userInfo!!.playCount!! >= 2) {
                         showOnemoreProhibitedDialog()
-                    } else if (userInfo!!.playCount!! == 1) {
+                    } else if (userInfo!!.playCount!! == 1 && !adWatched) {
                         showOnemoreDialog()
                     }
                 } else {

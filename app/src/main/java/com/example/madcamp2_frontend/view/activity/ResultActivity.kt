@@ -145,6 +145,7 @@ class ResultActivity : AppCompatActivity() {
             }, onAdClosed = {
                 val intent = Intent(this, BeforeStartActivity::class.java)
                 intent.putExtra("userid", userInfo?.userid)
+                intent.putExtra("adWatched", true)
                 startActivity(intent)
                 finish()
             })
