@@ -62,7 +62,7 @@ class UserViewModel : ViewModel() {
                         val userEmailResponse = response.body()
                         if (userEmailResponse != null) {
                             val isExistingUser = userEmailResponse.isExistingUser
-                            val user = userEmailResponse.user
+                            val user = userEmailResponse.user.copy(profileImage = "monkey")
                             Log.d("postUserEmail", "User ID: ${user.userid}")
                             userRepository.setUserInfo(user)
                         } else {

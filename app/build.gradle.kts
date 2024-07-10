@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.lottie)
     implementation(libs.retrofit)
     implementation(libs.gson)
     implementation(libs.converter.gson)

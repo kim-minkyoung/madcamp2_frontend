@@ -1,12 +1,14 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Window
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.example.madcamp2_frontend.databinding.ActivityBeforeStartBinding
@@ -114,13 +116,15 @@ class BeforeStartActivity : AppCompatActivity() {
         val dialogBinding = OnemoreProhibitedDialogBinding.inflate(LayoutInflater.from(this))
         dialog.setContentView(dialogBinding.root)
 
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.setCancelable(false)
+        dialog.window?.setLayout(350.dpToPx(this), LinearLayout.LayoutParams.WRAP_CONTENT)
 
         dialogBinding.PositiveButton.setOnClickListener {
             dialog.dismiss()
-            onBackPressed()
         }
         dialog.show()
+    }
+
+    private fun Int.dpToPx(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
     }
 }

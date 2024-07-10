@@ -38,6 +38,16 @@
         android:gravity="center"
         android:text="단, 최고 점수를 선택할 수는 없어요.\n상남자 상여자는 무조건 마지막 점수로!!" />
 
+    <TextView
+        android:id="@+id/cautionExplanationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bazzi"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="주의!! 이 팝업창을 나가면 이번 시간에는\n다시 플레이할 수 없어요!" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

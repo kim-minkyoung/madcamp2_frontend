@@ -158,8 +158,8 @@ class ProfileConfigurationActivity : AppCompatActivity() {
 
     private fun showSignOutDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Sign Out")
-            .setMessage("Are you sure you want to sign out?")
+            .setTitle("로그 아웃")
+            .setMessage("정말로 로그 아웃 하시겠어요?🤔")
             .setPositiveButton("Yes") { _, _ -> signOut() }
             .setNegativeButton("No", null)
             .show()
@@ -175,8 +175,8 @@ class ProfileConfigurationActivity : AppCompatActivity() {
 
     private fun showDeleteAccountDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Delete Account")
-            .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
+            .setTitle("계정 삭제")
+            .setMessage("정말로 계정을 삭제하시겠어요?😢 삭제된 계정은 복구할 수 없습니다.")
             .setPositiveButton("Yes") { _, _ -> deleteAccount() }
             .setNegativeButton("No", null)
             .show()
