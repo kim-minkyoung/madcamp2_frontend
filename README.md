@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
 
 ## 기능별 앱 소개
 
+|로그인 화면|플레이 팁|내 프로필 보기|게임 플레이|랭킹|
+|------------|----------|---------------|-----------|----|
+| ![KakaoTalk_20240710_183407177](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/88e1d159-38e8-4a4d-82d9-211166d6fade) | ![KakaoTalk_20240710_183407177_05](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/941a4fc6-ca40-4af9-ba78-ae704ab45e6d) | ![KakaoTalk_20240710_183407177_02](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/1b77dce2-5154-4a22-ad99-b34c3b1d8643) | ![KakaoTalk_20240710_183407177_04](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/30ecbfc2-066c-462d-a0c9-a4e50a3b2c2e) | ![KakaoTalk_20240710_183407177_01](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/c7433cd6-e1b9-4e06-bdb6-99e30470ffbf) |
+
 ### 🎨 로그인
 
 - 구글 로그인 SDK를 이용: 로그인 내역이 없다면 자동으로 회원가입, 있다면 로그인
@@ -95,9 +99,6 @@ const userSchema = new mongoose.Schema({
 - 누적 점수 랭킹과 이번 단어 랭킹 조회 가능
 - 나의 랭킹은 하단에 따로 표시되며, 순위는 선택한 탭에 따라 연동되어 달라짐.
 
-|로그인 화면|플레이 팁|내 프로필 보기|게임 플레이|랭킹|
-|------------|----------|---------------|-----------|----|
-| ![KakaoTalk_20240710_183407177](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/88e1d159-38e8-4a4d-82d9-211166d6fade) | ![KakaoTalk_20240710_183407177_05](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/941a4fc6-ca40-4af9-ba78-ae704ab45e6d) | ![KakaoTalk_20240710_183407177_02](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/1b77dce2-5154-4a22-ad99-b34c3b1d8643) | ![KakaoTalk_20240710_183407177_04](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/30ecbfc2-066c-462d-a0c9-a4e50a3b2c2e) | ![KakaoTalk_20240710_183407177_01](https://github.com/kim-minkyoung/madcamp2_frontend/assets/127263741/c7433cd6-e1b9-4e06-bdb6-99e30470ffbf) |
 
 ## 사용된 외부 API 목록
 
