@@ -19,27 +19,20 @@ import com.example.madcamp2_frontend.databinding.ActivityResultBinding
 import com.example.madcamp2_frontend.databinding.OnemoreDialogBinding
 import com.example.madcamp2_frontend.databinding.OnemoreProhibitedDialogBinding
 import com.example.madcamp2_frontend.model.network.UserInfo
+import com.example.madcamp2_frontend.view.utils.AdHelper
 import com.example.madcamp2_frontend.view.utils.Constants
 import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
 import com.example.madcamp2_frontend.viewmodel.UserViewModel
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
 class ResultActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResultBinding
     private val userViewModel: UserViewModel by viewModels()
     private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
+    private lateinit var adHelper: AdHelper
+    private val TAG: String = "ResultActivity"
 
     private var userInfo: UserInfo? = null
-
-    private var rewardedAd: RewardedAd? = null
-    private val TAG = "ResultActivity"
 
     @SuppressLint("DefaultLocale", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,12 +41,8 @@ class ResultActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         sharedPreferencesHelper = SharedPreferencesHelper(this)
-
-        // Initialize Mobile Ads SDK
-        MobileAds.initialize(this) {}
-
-        // Load the rewarded ad
-        loadRewardedAd()
+        adHelper = AdHelper(this)
+        adHelper.loadRewardedAd(Constants.AD_UNIT_ID)
 
         // Get data from intent
         val bitmapFileUriString = intent.getStringExtra("bitmapFileUri")
@@ -159,7 +148,14 @@ class ResultActivity : AppCompatActivity() {
                     userViewModel.updateUserScore(it.userid, score, playCount + 1)
                 }
             }
-            showRewardedAd()
+            adHelper.showRewardedAd(onAdReward = {
+                Log.d(TAG, "User earned the reward.")
+            }, onAdClosed = {
+                val intent = Intent(this, BeforeStartActivity::class.java)
+                intent.putExtra("userid", userInfo?.userid)
+                startActivity(intent)
+                finish()
+            })
         }
         dialogBinding.NegativeButton.setOnClickListener {
             dialog.dismiss()
@@ -184,55 +180,5 @@ class ResultActivity : AppCompatActivity() {
 
     private fun Int.dpToPx(context: Context): Int {
         return (this * context.resources.displayMetrics.density).toInt()
-    }
-
-    private fun loadRewardedAd() {
-        val adRequest = AdRequest.Builder().build()
-
-        RewardedAd.load(this, Constants.AD_UNIT_ID, adRequest, object : RewardedAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(TAG, "Ad wasn't loaded: ${adError.message}")
-                rewardedAd = null
-                loadRewardedAd()
-            }
-
-            override fun onAdLoaded(rewardedAd: RewardedAd) {
-                Log.d(TAG, "Ad was loaded.")
-                this@ResultActivity.rewardedAd = rewardedAd
-
-                rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
-                    override fun onAdDismissedFullScreenContent() {
-                        Log.d(TAG, "Ad was dismissed.")
-                        loadRewardedAd()
-                    }
-
-                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                        Log.d(TAG, "Ad failed to show.")
-                        loadRewardedAd()
-                    }
-
-                    override fun onAdShowedFullScreenContent() {
-                        Log.d(TAG, "Ad showed fullscreen content.")
-                        this@ResultActivity.rewardedAd = null
-                    }
-                }
-            }
-        })
-    }
-
-    private fun showRewardedAd() {
-        rewardedAd?.let { ad ->
-            ad.show(this) {
-                Log.d(TAG, "User earned the reward.")
-                val intent = Intent(this, BeforeStartActivity::class.java)
-                intent.putExtra("userid", userInfo?.userid)  // Pass the user ID instead
-                startActivity(intent)
-                finish()
-            }
-        } ?: run {
-            Log.d(TAG, "The rewarded ad wasn't ready yet.")
-            Toast.makeText(this, "The rewarded ad wasn't ready yet.", Toast.LENGTH_SHORT).show()
-            loadRewardedAd() // Load the ad if not loaded
-        }
     }
 }
