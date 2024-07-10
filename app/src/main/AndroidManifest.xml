@@ -19,24 +19,33 @@
         <activity
             android:name=".view.activity.RankingActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_ranking"
             android:theme="@style/Theme.Madcamp2_frontend" />
         <activity
             android:name=".view.activity.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.activity.BeforeStartActivity" />
-        <activity android:name=".view.activity.SignInActivity" />
-        <activity android:name=".view.activity.DrawingActivity" />
-        <activity android:name=".view.activity.ResultActivity" />
-        <activity android:name=".view.activity.ProfileConfigurationActivity" />
-        <activity android:name=".view.activity.LoadingActivity" />
-        <activity android:name=".view.activity.HelpActivity"/>
+        <activity android:name=".view.activity.BeforeStartActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.SignInActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.DrawingActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.ResultActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.ProfileConfigurationActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.LoadingActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.HelpActivity"
+            android:screenOrientation="portrait"/>
 
 
         <meta-data
