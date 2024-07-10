@@ -46,6 +46,10 @@ class RankingActivity : AppCompatActivity() {
             })
         }
 
+        Glide.with(this)
+            .load(R.raw.drawdle)
+            .into(binding.drawdleLogo)
+
         setupViewPagerAndTabs()
 
         rankingViewModel.userTotalRankings.observe(this, Observer { totalRankings ->
