@@ -126,14 +126,18 @@ class ResultActivity : AppCompatActivity() {
 
         binding.backToMainButton.setOnClickListener {
             userInfo?.let {
-                userViewModel.updateUserScore(it.userid, score, 2)
+                it.playCount?.let { playCount ->
+                    userViewModel.updateUserScore(it.userid, score, playCount + 1)
+                }
             }
             finish()
         }
 
         binding.checkRankingButton.setOnClickListener {
             userInfo?.let {
-                userViewModel.updateUserScore(it.userid, score, 2)
+                it.playCount?.let { playCount ->
+                    userViewModel.updateUserScore(it.userid, score, playCount + 1)
+                }
                 val intent = Intent(this, RankingActivity::class.java)
                 intent.putExtra("userid", it.userid)
                 startActivity(intent)

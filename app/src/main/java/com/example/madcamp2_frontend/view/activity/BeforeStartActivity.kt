@@ -1,6 +1,7 @@
 package com.example.madcamp2_frontend.view.activity
 
 import android.app.Dialog
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -21,8 +22,16 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.activity.viewModels
+import com.example.madcamp2_frontend.databinding.OnemoreDialogBinding
 import com.example.madcamp2_frontend.databinding.OnemoreProhibitedDialogBinding
+import com.example.madcamp2_frontend.view.utils.Constants
 import com.example.madcamp2_frontend.view.utils.SharedPreferencesHelper
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
 class BeforeStartActivity : AppCompatActivity() {
 
@@ -31,6 +40,9 @@ class BeforeStartActivity : AppCompatActivity() {
     private var userInfo: UserInfo? = null
     private val userViewModel: UserViewModel by viewModels()
     private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
+
+    private var rewardedAd: RewardedAd? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +54,8 @@ class BeforeStartActivity : AppCompatActivity() {
 
         // Display initial value
         binding.randomWordTextView.text = randomWord
+
+        loadRewardedAd()
 
         // Generate random word
         generateRandomWord { word ->
@@ -59,12 +73,10 @@ class BeforeStartActivity : AppCompatActivity() {
                     userInfo = fetchedUserInfo
                     Log.d("BeforeStartActivity", "Fetched user info: $fetchedUserInfo")
 
-                    if (userInfo!!.playCount!! > 1) {
-                        if (currentWord == randomWord) {
-                            showOnemoreProhibitedDialog()
-                        } else {
-                            userViewModel.updateUserScore(userInfo!!.userid, 0, 0)
-                        }
+                    if (userInfo!!.playCount!! >= 2) {
+                        showOnemoreProhibitedDialog()
+                    } else if (userInfo!!.playCount!! == 1) {
+                        showOnemoreDialog()
                     }
                 } else {
                     Log.d("BeforeStartActivity", "User info is null")
@@ -110,6 +122,26 @@ class BeforeStartActivity : AppCompatActivity() {
         })
     }
 
+    private fun showOnemoreDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = OnemoreDialogBinding.inflate(LayoutInflater.from(this))
+        dialog.setContentView(dialogBinding.root)
+
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+
+        dialogBinding.PositiveButton.setOnClickListener {
+            dialog.dismiss()
+            showRewardedAd()
+        }
+        dialogBinding.NegativeButton.setOnClickListener {
+            onBackPressed()
+        }
+
+        dialog.show()
+    }
+
     private fun showOnemoreProhibitedDialog() {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -118,13 +150,66 @@ class BeforeStartActivity : AppCompatActivity() {
 
         dialog.window?.setLayout(350.dpToPx(this), LinearLayout.LayoutParams.WRAP_CONTENT)
 
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+
         dialogBinding.PositiveButton.setOnClickListener {
-            dialog.dismiss()
+            onBackPressed()
         }
         dialog.show()
     }
 
     private fun Int.dpToPx(context: Context): Int {
         return (this * context.resources.displayMetrics.density).toInt()
+    }
+
+    private fun showRewardedAd() {
+        rewardedAd?.let { ad ->
+            ad.show(this) {
+                Log.d(TAG, "User earned the reward.")
+                val intent = Intent(this, BeforeStartActivity::class.java)
+                intent.putExtra("userid", userInfo?.userid)  // Pass the user ID instead
+                startActivity(intent)
+                finish()
+            }
+        } ?: run {
+            Log.d(TAG, "The rewarded ad wasn't ready yet.")
+            Toast.makeText(this, "The rewarded ad wasn't ready yet.", Toast.LENGTH_SHORT).show()
+            loadRewardedAd() // Load the ad if not loaded
+        }
+    }
+
+    private fun loadRewardedAd() {
+        val adRequest = AdRequest.Builder().build()
+
+        RewardedAd.load(this, Constants.AD_UNIT_ID, adRequest, object : RewardedAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(TAG, "Ad wasn't loaded: ${adError.message}")
+                rewardedAd = null
+                loadRewardedAd()
+            }
+
+            override fun onAdLoaded(rewardedAd: RewardedAd) {
+                Log.d(TAG, "Ad was loaded.")
+                this@BeforeStartActivity.rewardedAd = rewardedAd
+
+                rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        Log.d(TAG, "Ad was dismissed.")
+                        loadRewardedAd()
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        Log.d(TAG, "Ad failed to show.")
+                        loadRewardedAd()
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        Log.d(TAG, "Ad showed fullscreen content.")
+                        this@BeforeStartActivity.rewardedAd = null
+                    }
+                }
+            }
+        })
     }
 }
